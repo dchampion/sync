@@ -1,2 +1,2 @@
-# sync
-Java concurrency framework
+# java-spring
+Java with Spring Framework
