@@ -162,7 +162,7 @@ public class AsyncRequestHandler<T> {
     private ExecutorService executorService = Executors.newCachedThreadPool();
 
     @Autowired
-    private ResponseCache<T> responseCache;
+    ResponseCache<T> responseCache;
 
     /**
      * Submits a long-running task, wrapped in a {@link Callable} instance, for
