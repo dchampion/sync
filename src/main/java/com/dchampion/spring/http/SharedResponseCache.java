@@ -1,4 +1,4 @@
-package com.dchampion.spring;
+package com.dchampion.spring.http;
 
 import java.util.UUID;
 

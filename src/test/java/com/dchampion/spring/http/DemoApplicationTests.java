@@ -1,4 +1,4 @@
-package com.dchampion.spring;
+package com.dchampion.spring.http;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

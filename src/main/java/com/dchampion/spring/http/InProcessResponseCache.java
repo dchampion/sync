@@ -1,4 +1,4 @@
-package com.dchampion.spring;
+package com.dchampion.spring.http;
 
 import java.time.Duration;
 import java.util.UUID;

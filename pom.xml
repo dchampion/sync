@@ -10,10 +10,10 @@
   <groupId>com.dchampion</groupId>
   <artifactId>spring</artifactId>
   <version>0.0.1-SNAPSHOT</version>
-  <name>demo</name>
-  <description>Demo project for Spring Boot</description>
+  <name>http</name>
+  <description>Java/Spring Boot HTTP Framework</description>
   <properties>
-    <java.version>1.8</java.version>
+    <java.version>12</java.version>
   </properties>
   <dependencies>
 
