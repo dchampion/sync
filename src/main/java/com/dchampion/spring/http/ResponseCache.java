@@ -5,11 +5,12 @@ import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 
 /**
- * An interface for caching HTTP response entities ({@link ResponseEntity}).
+ * An interface for caching HTTP response entities ({@link ResponseEntity}) in instances
+ * of the class {@link AsyncRequestHandler}.
  * 
  * @param <T> the type of the body of the response entity.
  */
-public interface ResponseCache<T> {
+interface ResponseCache<T> {
     
     /**
      * Put a {@link ResponseEntity} in the cache.

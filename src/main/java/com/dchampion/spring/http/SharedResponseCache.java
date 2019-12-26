@@ -8,10 +8,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
 /**
- * A shared implementation of {@link ResponseCache}. This implementation
- * will be used if the property {@code async.response_cache.scope=shared} is set.
+ * A shared implementation of {@link ResponseCache}. This implementation will be
+ * injected into instances of {@link AsyncRequestHandler} if the property 
+ * {@code async.response_cache.scope} is set to {@code shared}.
  * <p>
- * See {@link AsyncRequestHandler} for hints on how one might implement this class.
+ * See class-level javadoc in {@link AsyncRequestHandler} for hints on how one might
+ * implement this class.
  * 
  * @param <T> the type of the body of a {@link ResponseEntity}.
  * 

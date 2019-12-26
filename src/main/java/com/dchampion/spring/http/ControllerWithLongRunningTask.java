@@ -12,24 +12,31 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * A contrived {@link RestController} class that demonstrates the usage of an {@link AsyncRequestHandler}
+ * to manage the lifecycle of a long-running HTTP request from a browser client.
+ */
 @RestController
 @RequestMapping("/long-call")
-public class Controller {
+public class ControllerWithLongRunningTask {
 
     @Autowired
     private AsyncRequestHandler<List<String>> handler;
 
-    @PostMapping("/job")
-    public ResponseEntity<List<String>> job() {
-        return handler.submit(() -> longRunningJob(), TimeUnit.MINUTES, 20);
+    @PostMapping("/task")
+    public ResponseEntity<List<String>> task() {
+        // Submit the task with a timeout of 10 minutes. This is a non-blocking call.
+        return handler.submit(() -> longRunningTask(), TimeUnit.MINUTES, 10);
     }
 
-    @GetMapping("/job/{id}")
-    public ResponseEntity<List<String>> job(@PathVariable String id) {
+    @GetMapping("/task/{id}")
+    public ResponseEntity<List<String>> task(@PathVariable String id) {
+        // Check the status of the task.
         return handler.poll(id);
     }
 
-    private List<String> longRunningJob() throws InterruptedException {
+    // A long-running task.
+    private List<String> longRunningTask() throws InterruptedException {
         Thread.sleep(30000);
         return Arrays.asList("Hello", "world");
     }
