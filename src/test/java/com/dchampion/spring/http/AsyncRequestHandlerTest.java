@@ -12,7 +12,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpHeaders;
@@ -39,28 +38,28 @@ public class AsyncRequestHandlerTest {
     }
 
     private void assertPending(ResponseEntity<List<String>> response) {
-        assertEquals(AsyncRequestHandler.TaskStatus.PENDING.getStatus(), response.getHeaders().getFirst("Task-Status"));
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(AsyncRequestHandler.TaskStatus.PENDING.getStatus(), response.getHeaders().getFirst("Task-Status"));
     }
 
     private void assertComplete(ResponseEntity<List<String>> response) {
-        assertEquals(response.getHeaders().getFirst("Task-Status"), AsyncRequestHandler.TaskStatus.COMPLETE.getStatus());
         assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(response.getHeaders().getFirst("Task-Status"), AsyncRequestHandler.TaskStatus.COMPLETE.getStatus());
         assertEquals(response.getBody().size(), 3);
     }
 
     private void assertError(ResponseEntity<List<String>> response) {
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals(AsyncRequestHandler.TaskStatus.ERROR.getStatus(), response.getHeaders().getFirst("Task-Status"));
         assertFalse(response.getHeaders().getFirst("Task-Error-Type").isEmpty());
         assertFalse(response.getHeaders().getFirst("Task-Error-Message").isEmpty());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 
     private void assertTimedout(ResponseEntity<List<String>> response) {
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals(AsyncRequestHandler.TaskStatus.TIMEDOUT.getStatus(), response.getHeaders().getFirst("Task-Status"));
         assertFalse(response.getHeaders().getFirst("Task-Error-Type").isEmpty());
         assertFalse(response.getHeaders().getFirst("Task-Error-Message").isEmpty());
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
     }
 
     private List<String> longRunningTask() {

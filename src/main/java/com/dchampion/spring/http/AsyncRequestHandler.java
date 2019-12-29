@@ -90,38 +90,36 @@ import org.springframework.stereotype.Component;
  * submits the long-running task for asynchronous execution:
  * 
  * <pre>
- * Request:
- * http://localhost:8080/task
+ * Reqeust
+ * URL: http://localhost:8080/task
+ * Method: POST
  *
- * Response:
- * HTTP response status: 202 (Accepted)
- *
- * HTTP response header values: Task-Status=submitted
- *                              Task-Id=cf645961-9b2c-4a60-b994-a9f093e5ac56
- *
- * HTTP body: null
+ * Response
+ * Status Code: 202 (Accepted)
+ * Header Values: Task-Status=submitted
+ *                Task-Id=cf645961-9b2c-4a60-b994-a9f093e5ac56
+ * Body: null
  * </pre>
  * 
  * Subsequent calls poll the previously submitted long-running task for its
- * status, supplying the Task-Id returned by the first call to this method:
+ * status, supplying the {@code Task-Id} returned by the first call to this method:
  * 
  * <pre>
- * Request:
- * http://localhost:8080/task/cf645961-9b2c-4a60-b994-a9f093e5ac56
+ * Request
+ * URL: http://localhost:8080/task/cf645961-9b2c-4a60-b994-a9f093e5ac56
+ * Method: GET
  *
- * Response:
- * HTTP response status: 200 (OK) if Task-Status is "pending" or "complete"
- *                       400 (BAD_REQUEST) if Task-Status is "unsubmitted"
- *                       500 (INTERNAL_SERVER_ERROR) if Task-Status is "error" or "timedout"
- *
- * HTTP response header values: Task-Status=pending
- *                              Task-Status=complete
- *                              Task-Status=unsubmitted
- *                              Task-Status=error
- *                              Task-Status=timedout
- *
- * HTTP body: ["Hello","world"] if Task-Status is "complete"
- *            null if Task-Status is any other value.
+ * Response
+ * Status Code: 200 (OK) if Task-Status is "pending" or "complete"
+ *              400 (BAD_REQUEST) if Task-Status is "unsubmitted"
+ *              500 (INTERNAL_SERVER_ERROR) if Task-Status is "error" or "timedout"
+ * Header Values: Task-Status=pending
+ *                Task-Status=complete
+ *                Task-Status=unsubmitted
+ *                Task-Status=error
+ *                Task-Status=timedout
+ *Body: ["Hello","world"] if Task-Status is "complete"
+ *      null if Task-Status is any other value.
  * </pre>
  * 
  * If {@code Task-Status=complete}, the body of the {@link ResponseEntity} returned by the
@@ -288,7 +286,7 @@ public class AsyncRequestHandler<T> {
 
     /**
      * Polls the status of a long-running task previously submitted to this class'
-     * {@link #submit(Callable, TimeUnit, int)} method, given the {@code Task-Id}.
+     * {@link #submit(Callable, TimeUnit, int)} method, given its {@code Task-Id}.
      * <p>
      * One of five possible statuses is returned in the header of the
      * {@link ResponseEntity} returned by this method, depending on the state of the
@@ -311,7 +309,7 @@ public class AsyncRequestHandler<T> {
      * <p>
      * If {@code Task-Status} is {@link TaskStatus#ERROR}, then two additional headers
      * will be included in the response indicating the type of error
-     * ("Task-Error-Type") and an error message ("Task-Error-Message").
+     * ({@code Task-Error-Type}) and an error message ({@code Task-Error-Message}).
      * <p>
      * See {@link AsyncRequestHandler class-level Javadoc} for sample usages of this
      * method.
@@ -325,7 +323,7 @@ public class AsyncRequestHandler<T> {
      *         {@link TaskStatus#COMPLETE}, the results of the long-running task in its
      *         body.
      *
-     * @throws NullPointerException if arg {@code id} is {@code null}.
+     * @throws NullPointerException if arg {@code id} supplied to this method is {@code null}.
      */
     public ResponseEntity<T> poll(String id) {
 
@@ -403,7 +401,7 @@ final class ResponseBuilder<T> {
     }
 
     /**
-     * Set a single header pair. This is a convenience method specific to Task-Status headers.
+     * Set a single header pair. This is a convenience method specific to {@code Task-Status} headers.
      * 
      * @param headerName the name of the header (i.e. Task-Status).
      * @param status the {@link #TaskStatus}.
