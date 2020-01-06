@@ -338,7 +338,7 @@ public class AsyncRequestHandler<T> {
             // We have no response for the supplied task ID.
             response = new ResponseBuilder<T>()
                 .header(TASK_STATUS_KEY, TaskStatus.UNSUBMITTED)
-                .status(HttpStatus.BAD_REQUEST)
+                .status(HttpStatus.OK)
                 .build();
 
         } else {
