@@ -277,7 +277,7 @@ public class AsyncRequestHandler<T> {
                 .header(TASK_STATUS_KEY, status)
                 .header("Task-Error-Type", t.getClass() != null ? t.getClass().getName() : "Unknown")
                 .header("Task-Error-Message", t.getMessage() != null ? t.getMessage() : "None")
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .status(HttpStatus.OK)
                 .build();
         
         // Cache it.
@@ -395,7 +395,7 @@ final class ResponseBuilder<T> {
 
     private HttpHeaders headers = new HttpHeaders();
     private T body = null;
-    private HttpStatus status;
+    private HttpStatus status = HttpStatus.OK;
 
     ResponseBuilder() {
     }
@@ -457,7 +457,6 @@ final class ResponseBuilder<T> {
      * @return a valid {@link ResponseEntity}.
      */
     ResponseEntity<T> build() {
-        assert (status != null);
         ResponseEntity<T> response = new ResponseEntity<T>(body, headers, status);
         return response;
     }

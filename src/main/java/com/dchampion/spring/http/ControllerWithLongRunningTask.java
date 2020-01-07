@@ -23,14 +23,14 @@ public class ControllerWithLongRunningTask {
     @Autowired
     private AsyncRequestHandler<List<String>> handler;
 
-    @PostMapping("/task")
-    public ResponseEntity<List<String>> task() {
+    @PostMapping("/submit")
+    public ResponseEntity<List<String>> submit() {
         // Submit the task with a timeout of 10 minutes. This is a non-blocking call.
         return handler.submit(() -> longRunningTask(), TimeUnit.MINUTES, 10);
     }
 
-    @GetMapping("/task/{id}")
-    public ResponseEntity<List<String>> task(@PathVariable String id) {
+    @GetMapping("/poll/{id}")
+    public ResponseEntity<List<String>> poll(@PathVariable String id) {
         // Check the status of the task.
         return handler.poll(id);
     }
@@ -38,6 +38,6 @@ public class ControllerWithLongRunningTask {
     // A long-running task.
     private List<String> longRunningTask() throws InterruptedException {
         Thread.sleep(30000);
-        return Arrays.asList("Hello", "world");
+        return Arrays.asList("Hello", "client!");
     }
 }
