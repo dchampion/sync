@@ -32,14 +32,14 @@ public class AsyncRequestHandlerTest {
         assertEquals(AsyncRequestHandler.TaskStatus.SUBMITTED.getStatus(), response.getHeaders().getFirst("Task-Status"));
     }
 
-    private void assertUnsubmitted(ResponseEntity<List<String>> response) {
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-        assertEquals(AsyncRequestHandler.TaskStatus.UNSUBMITTED.getStatus(), response.getHeaders().getFirst("Task-Status"));
-    }
-
     private void assertPending(ResponseEntity<List<String>> response) {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(AsyncRequestHandler.TaskStatus.PENDING.getStatus(), response.getHeaders().getFirst("Task-Status"));
+    }
+
+    private void assertUnsubmitted(ResponseEntity<List<String>> response) {
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(AsyncRequestHandler.TaskStatus.UNSUBMITTED.getStatus(), response.getHeaders().getFirst("Task-Status"));
     }
 
     private void assertComplete(ResponseEntity<List<String>> response) {
@@ -49,14 +49,14 @@ public class AsyncRequestHandlerTest {
     }
 
     private void assertError(ResponseEntity<List<String>> response) {
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals(AsyncRequestHandler.TaskStatus.ERROR.getStatus(), response.getHeaders().getFirst("Task-Status"));
         assertFalse(response.getHeaders().getFirst("Task-Error-Type").isEmpty());
         assertFalse(response.getHeaders().getFirst("Task-Error-Message").isEmpty());
     }
 
     private void assertTimedout(ResponseEntity<List<String>> response) {
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
         assertEquals(AsyncRequestHandler.TaskStatus.TIMEDOUT.getStatus(), response.getHeaders().getFirst("Task-Status"));
         assertFalse(response.getHeaders().getFirst("Task-Error-Type").isEmpty());
         assertFalse(response.getHeaders().getFirst("Task-Error-Message").isEmpty());

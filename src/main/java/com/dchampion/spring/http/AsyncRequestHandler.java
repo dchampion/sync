@@ -67,22 +67,22 @@ import org.springframework.stereotype.Component;
  * &#64;Autowired
  * private AsyncRequestHandler&lt;List&lt;String&gt;&gt; handler;
  * 
- * &#64;PostMapping("/task")
- * public ResponseEntity&lt;List&lt;String&gt;&gt; task() {
+ * &#64;PostMapping("/submit")
+ * public ResponseEntity&lt;List&lt;String&gt;&gt; submit() {
  *     // Submit the task with a timeout of 10 minutes. This is a non-blocking call.
  *     return handler.submit(() -&gt; longRunningTask(), TimeUnit.MINUTES, 10);
  * }
  *
- * &#64;GetMapping("/task/{id}")
- * public ResponseEntity&lt;List&lt;String&gt;&gt; task(&#64;PathVariable String id) {
+ * &#64;GetMapping("/poll/{id}")
+ * public ResponseEntity&lt;List&lt;String&gt;&gt; poll(&#64;PathVariable String id) {
  *     // Check the status of the task.
  *     return handler.poll(id);
  * }
  *
  * // A long-running task.
  * private List&lt;String&gt; longRunningTask() {
- *     Thread.sleep(60000);
- *     return Arrays.asList("Hello", "world");
+ *     Thread.sleep(9000);
+ *     return Arrays.asList("Hello", "Client!");
  * }
  * </pre>
  * 
@@ -91,7 +91,7 @@ import org.springframework.stereotype.Component;
  * 
  * <pre>
  * Reqeust
- * URL: http://localhost:8080/task
+ * URL: http://localhost:8080/submit
  * Method: POST
  *
  * Response
@@ -106,19 +106,19 @@ import org.springframework.stereotype.Component;
  * 
  * <pre>
  * Request
- * URL: http://localhost:8080/task/cf645961-9b2c-4a60-b994-a9f093e5ac56
+ * URL: http://localhost:8080/poll/cf645961-9b2c-4a60-b994-a9f093e5ac56
  * Method: GET
  *
  * Response
- * Status Code: 200 (OK) if Task-Status is "pending" or "complete"
- *              400 (BAD_REQUEST) if Task-Status is "unsubmitted"
- *              500 (INTERNAL_SERVER_ERROR) if Task-Status is "error" or "timedout"
+ * Status Codes:  200 (OK) if Task-Status is "pending" or "complete"
+ *                400 (BAD_REQUEST) if Task-Status is "unsubmitted"
+ *                500 (INTERNAL_SERVER_ERROR) if Task-Status is "error" or "timedout"
  * Header Values: Task-Status=pending
  *                Task-Status=complete
  *                Task-Status=unsubmitted
  *                Task-Status=error
  *                Task-Status=timedout
- *Body: ["Hello","world"] if Task-Status is "complete"
+ *Body: ["Hello","Client!"] if Task-Status is "complete"
  *      null if Task-Status is any other value.
  * </pre>
  * 
@@ -237,7 +237,6 @@ public class AsyncRequestHandler<T> {
             ResponseEntity<T> response = new ResponseBuilder<T>()
                     .header(TASK_STATUS_KEY, TaskStatus.COMPLETE)
                     .body(body)
-                    .status(HttpStatus.OK)
                     .build();
             
             // Cache it.
@@ -271,13 +270,13 @@ public class AsyncRequestHandler<T> {
         if (t instanceof ExecutionException) {
             t = t.getCause();
         }
-        
+
         // Build a response.
         ResponseEntity<T> response = new ResponseBuilder<T>()
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .header(TASK_STATUS_KEY, status)
                 .header("Task-Error-Type", t.getClass() != null ? t.getClass().getName() : "Unknown")
                 .header("Task-Error-Message", t.getMessage() != null ? t.getMessage() : "None")
-                .status(HttpStatus.OK)
                 .build();
         
         // Cache it.
@@ -337,8 +336,8 @@ public class AsyncRequestHandler<T> {
             
             // We have no response for the supplied task ID.
             response = new ResponseBuilder<T>()
+                .status(HttpStatus.BAD_REQUEST)
                 .header(TASK_STATUS_KEY, TaskStatus.UNSUBMITTED)
-                .status(HttpStatus.OK)
                 .build();
 
         } else {
@@ -354,7 +353,6 @@ public class AsyncRequestHandler<T> {
                 response = new ResponseBuilder<T>()
                     .header(TASK_STATUS_KEY, TaskStatus.COMPLETE)
                     .body(body)
-                    .status(HttpStatus.OK)
                     .build();
 
             } else {
@@ -368,7 +366,6 @@ public class AsyncRequestHandler<T> {
                     // the task is still pending.
                     response = new ResponseBuilder<T>()
                         .header(TASK_STATUS_KEY, TaskStatus.PENDING)
-                        .status(HttpStatus.OK)
                         .build();
                     
                     responseCache.put(uuid, response);
@@ -452,7 +449,7 @@ final class ResponseBuilder<T> {
     /**
      * The terminal operation of this class, which returns a {@link ResponseEntity} containing
      * zero or more headers, an optional body, and an HTTP status supplied via intermediate operations of
-     * this class. Note that at a minimum an HTTP status must be supplied.
+     * this class.
      * 
      * @return a valid {@link ResponseEntity}.
      */
