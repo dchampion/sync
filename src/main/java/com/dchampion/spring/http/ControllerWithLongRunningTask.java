@@ -1,7 +1,6 @@
 package com.dchampion.spring.http;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.Arrays;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,12 +24,11 @@ public class ControllerWithLongRunningTask {
     private AsyncRequestHandler<List<String>> handler;
 
     @PostMapping("/submit")
-    public ResponseEntity<List<String>> submit(@RequestBody(required=false) TimeParams params) {
-        TimeUnit timeUnit = params != null ? TimeParams.parseTimeUnit(params.getTimeUnit()) : TimeUnit.MINUTES;
-        int duration = params != null ? params.getDuration() : 10;
+    public ResponseEntity<List<String>> submit(@RequestBody(required=false) TimeoutParameter param) {
+        int timeout = param != null ? param.getTimeout() : 10;
 
         // Submit the task with a timeout of 10 minutes. This is a non-blocking call.
-        return handler.submit(() -> longRunningTask(), timeUnit, duration);
+        return handler.submit(() -> longRunningTask(), timeout);
     }
 
     @GetMapping("/poll/{id}")
@@ -46,32 +44,19 @@ public class ControllerWithLongRunningTask {
     }
 }
 
-class TimeParams {
-    private String timeUnit;
-    private int duration;
+class TimeoutParameter {
+    private int timeout;
 
-    String getTimeUnit() {
-        return timeUnit;
+    int getTimeout() {
+        return timeout;
     }
 
-    int getDuration() {
-        return duration;
-    }
-
-    void setTimeUnit(String timeUnit) {
-        this.timeUnit = timeUnit;
-    }
-
-    void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    static TimeUnit parseTimeUnit(String timeUnit) {
-        return "SECONDS".equals(timeUnit.toUpperCase()) ? TimeUnit.SECONDS : TimeUnit.MINUTES;
+    void setTimeout(int timeout) {
+        this.timeout = timeout;
     }
 
     @Override
     public String toString() {
-        return "TimeUnit = " + timeUnit + " Duration = " + duration;
+        return "Timeout: " + timeout;
     }
 }

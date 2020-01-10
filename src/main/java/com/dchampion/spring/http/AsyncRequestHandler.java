@@ -22,7 +22,7 @@ import org.springframework.stereotype.Component;
  * asynchronously, to report on the status of the method while it is executing,
  * and to return the results of the method when it is complete.
  * <p>
- * Use the {@link #submit(Callable, TimeUnit, int)} method to submit for asynchronous
+ * Use the {@link #submit(Callable, int)} method to submit for asynchronous
  * execution a long-running task wrapped in a {@link Callable} instance. Then
  * use the {@link #poll(String)} method to check the status of the long-running
  * task at periodic intervals. If the long-running task has completed by the
@@ -70,7 +70,7 @@ import org.springframework.stereotype.Component;
  * &#64;PostMapping("/submit")
  * public ResponseEntity&lt;List&lt;String&gt;&gt; submit() {
  *     // Submit the task with a timeout of 10 minutes. This is a non-blocking call.
- *     return handler.submit(() -&gt; longRunningTask(), TimeUnit.MINUTES, 10);
+ *     return handler.submit(() -&gt; longRunningTask(), 600);
  * }
  *
  * &#64;GetMapping("/poll/{id}")
@@ -81,7 +81,7 @@ import org.springframework.stereotype.Component;
  *
  * // A long-running task.
  * private List&lt;String&gt; longRunningTask() {
- *     Thread.sleep(9000);
+ *     Thread.sleep(10000);
  *     return Arrays.asList("Hello", "Client!");
  * }
  * </pre>
@@ -93,6 +93,7 @@ import org.springframework.stereotype.Component;
  * Reqeust
  * URL: http://localhost:8080/submit
  * Method: POST
+ * Body (Optional): {"timeout":600}
  *
  * Response
  * Status Code: 202 (Accepted)
@@ -174,11 +175,11 @@ public class AsyncRequestHandler<T> {
      *                 The type parameter of the {@link Callable} instance, and its return
      *                 value, will comprise the contents of the HTTP response body when the
      *                 task is complete.
-     * @param timeUnit The {@link TimeUnit} to use for timeout; e.g. {@link TimeUnit#MINUTES}.
-     * @param timeout  The time allowed for the long-running task to complete. If the task
-     *                 does not complete within this duration, this class' {@link #poll(String)}
-     *                 method will report a status of {@link TaskStatus#TIMEDOUT} in its header's
-     *                 {@code Task-Status} field. This value must be a positive integer.
+     * @param timeout  The time allowed, in seconds, for the long-running task to complete. If
+     *                 the task does not complete within this duration, this class'
+     *                 {@link #poll(String)} method will report a status of
+     *                 {@link TaskStatus#TIMEDOUT} in its header's {@code Task-Status} field.
+     *                 This value must be a positive integer.
      *
      * @return a {@link ResponseEntity} containing no body, but with a header
      *         containing a {@code Task-Status} of {@link TaskStatus#SUBMITTED}, and a
@@ -189,14 +190,13 @@ public class AsyncRequestHandler<T> {
      *         further indicate to the client that the request has been received but
      *         not yet fulfilled.
      *
-     * @throws NullPointerException     if either arg {@code task} or {@code timeUnit} is {@code null}.
+     * @throws NullPointerException     if arg {@code task} is {@code null}.
      * @throws IllegalArgumentException if arg {@code timeout} is not a positive integer.
      */
-    public ResponseEntity<T> submit(Callable<T> task, TimeUnit timeUnit, int timeout) {
+    public ResponseEntity<T> submit(Callable<T> task, int timeout) {
 
         // Validate args.
         Objects.requireNonNull(task);
-        Objects.requireNonNull(timeUnit);
         if (timeout < 1) {
             throw new IllegalArgumentException("Timeout must be a positive integer.");
         }
@@ -208,13 +208,14 @@ public class AsyncRequestHandler<T> {
         ResponseEntity<T> response = new ResponseBuilder<T>()
                 .header("Task-Id", uuid.toString())
                 .header(TASK_STATUS_KEY, TaskStatus.SUBMITTED)
-                .status(HttpStatus.ACCEPTED).build();
+                .status(HttpStatus.ACCEPTED)
+                .build();
         
         // Cache it.
         responseCache.put(uuid, response);
 
         // Submit the task for asynchronous execution (this call doesn't block).
-        executorService.execute(() -> doTask(uuid, task, timeUnit, timeout));
+        executorService.execute(() -> doTask(uuid, task, timeout));
 
         // Return the response.
         return response;
@@ -225,13 +226,12 @@ public class AsyncRequestHandler<T> {
      * 
      * @param uuid A unique task ID.
      * @param task The task.
-     * @param timeUnit The timeout parameter's {@link TimeUnit}.
      * @param timeout The timeout value for the task.
      */
-    private void doTask(UUID uuid, Callable<T> task, TimeUnit timeUnit, int timeout) {
+    private void doTask(UUID uuid, Callable<T> task, int timeout) {
         try {
             // Execute the task and wait for it to finish.
-            T body = executorService.submit(task).get(timeout, timeUnit);
+            T body = executorService.submit(task).get(timeout, TimeUnit.SECONDS);
             
             // Build a response containing the results of the task.
             ResponseEntity<T> response = new ResponseBuilder<T>()
@@ -258,7 +258,7 @@ public class AsyncRequestHandler<T> {
     }
 
     /**
-     * {@link #doTask(UUID, Callable, TimeUnit, int)} helper method to build up an error response.
+     * {@link #doTask(UUID, Callable, int)} helper method to build up an error response.
      * 
      * @param uuid The task ID.
      * @param status The {@link #TaskStatus}.
@@ -285,7 +285,7 @@ public class AsyncRequestHandler<T> {
 
     /**
      * Polls the status of a long-running task previously submitted to this class'
-     * {@link #submit(Callable, TimeUnit, int)} method, given its {@code Task-Id}.
+     * {@link #submit(Callable, int)} method, given its {@code Task-Id}.
      * <p>
      * One of five possible statuses is returned in the header of the
      * {@link ResponseEntity} returned by this method, depending on the state of the
@@ -315,7 +315,7 @@ public class AsyncRequestHandler<T> {
      *
      * @param id the id of the long-running task. This id is supplied in the
      *           {@code Task-Id} header of the {@link ResponseEntity} returned by this
-     *           class' {@link #submit(Callable, TimeUnit, int)} method.
+     *           class' {@link #submit(Callable, int)} method.
      *
      * @return a {@link ResponseEntity} containing a {@code Task-Status} header indicating
      *         the status of the long-running task and, if the status is
@@ -367,11 +367,11 @@ public class AsyncRequestHandler<T> {
                     response = new ResponseBuilder<T>()
                         .header(TASK_STATUS_KEY, TaskStatus.PENDING)
                         .build();
-                    
+
                     responseCache.put(uuid, response);
                 } else if (status.equals(TaskStatus.ERROR.getStatus())
                         || status.equals(TaskStatus.TIMEDOUT.getStatus())) {
-                    
+
                     // In the case of an error or a timeout, remove the
                     // response from the cache.
                     responseCache.remove(uuid);

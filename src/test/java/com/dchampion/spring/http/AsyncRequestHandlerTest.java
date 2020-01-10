@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -78,7 +77,7 @@ public class AsyncRequestHandlerTest {
     @Test
     public void submitAndPoll() {
 
-        ResponseEntity<List<String>> response = handler.submit(() -> longRunningTask(), TimeUnit.SECONDS, 10);
+        ResponseEntity<List<String>> response = handler.submit(() -> longRunningTask(), 10);
         assertSubmitted(response);
 
         String taskId = response.getHeaders().getFirst("Task-Id");
@@ -100,7 +99,7 @@ public class AsyncRequestHandlerTest {
     @Test
     public void submitAndWaitTillComplete() throws InterruptedException {
 
-        ResponseEntity<List<String>> response = handler.submit(() -> longRunningTask(), TimeUnit.SECONDS, 10);
+        ResponseEntity<List<String>> response = handler.submit(() -> longRunningTask(), 10);
         assertSubmitted(response);
 
         String taskId = response.getHeaders().getFirst("Task-Id");
@@ -117,7 +116,7 @@ public class AsyncRequestHandlerTest {
     @Test
     public void submitAndPollExceptionThrowingTask() {
 
-        ResponseEntity<List<String>> response = handler.submit(() -> exceptionThrowingLongRunnningTask(), TimeUnit.SECONDS, 10);
+        ResponseEntity<List<String>> response = handler.submit(() -> exceptionThrowingLongRunnningTask(), 10);
         assertSubmitted(response);
 
         String taskId = response.getHeaders().getFirst("Task-Id");
@@ -138,7 +137,7 @@ public class AsyncRequestHandlerTest {
     @Test
     public void submitAndPollWithTimeout() {
 
-        ResponseEntity<List<String>> response = handler.submit(() -> longRunningTask(), TimeUnit.SECONDS, 2);
+        ResponseEntity<List<String>> response = handler.submit(() -> longRunningTask(), 2);
         assertSubmitted(response);
 
         String taskId = response.getHeaders().getFirst("Task-Id");
@@ -162,7 +161,7 @@ public class AsyncRequestHandlerTest {
         // more or less simultaneously, in the current thread.
         List<String> taskIds = new ArrayList<>();
         for (int i = 0; i < 5; i++) {
-            String id = handler.submit(() -> longRunningTask(), TimeUnit.SECONDS, 30).getHeaders().getFirst("Task-Id");
+            String id = handler.submit(() -> longRunningTask(), 30).getHeaders().getFirst("Task-Id");
             taskIds.add(id);
             System.out.println("Submitted task id " + id);
         }
