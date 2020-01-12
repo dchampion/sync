@@ -7,7 +7,7 @@
     <version>1.0.0</version>
   </parent>
   <groupId>com.dchampion.http</groupId>
-  <artifactId>server</artifactId>
+  <artifactId>http-server</artifactId>
   <version>1.0.0</version>
   <name>HTTP server</name>
   <description>Java / Spring Boot HTTP framework</description>

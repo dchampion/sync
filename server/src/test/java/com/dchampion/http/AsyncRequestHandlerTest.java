@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -167,7 +168,7 @@ public class AsyncRequestHandlerTest {
         }
 
         // Poll for each task submitted above in a dedicated thread (i.e. poll in parallel).
-        List<String> resultStatuses = new ArrayList<>();
+        List<String> resultStatuses = new CopyOnWriteArrayList<>();
         Executor executor = Executors.newFixedThreadPool(5);
         taskIds.forEach(taskId -> {
             executor.execute(() -> {
@@ -177,8 +178,8 @@ public class AsyncRequestHandlerTest {
                     headers = handler.poll(taskId).getHeaders();
                     status = headers.getFirst("Task-Status");
                 }
-                resultStatuses.add(headers.getFirst("Task-Status"));
-                System.out.println("Completed task id " + headers.getFirst("Task-Id"));
+                assertEquals(AsyncRequestHandler.TaskStatus.COMPLETE.getStatus(), status);
+                resultStatuses.add(status);
             });
         });
 
@@ -191,7 +192,6 @@ public class AsyncRequestHandlerTest {
         // if none is already available in the pool, and should never wait in a queue
         // before being executed. These properties guarantee that all 5 long-running
         // tasks should run immediately and in parallel.
-        assertEquals(resultStatuses.size(), 5);
-        resultStatuses.forEach(status -> assertEquals(AsyncRequestHandler.TaskStatus.COMPLETE.getStatus(), status));
+        assertEquals(5, resultStatuses.size());
     }
 }
