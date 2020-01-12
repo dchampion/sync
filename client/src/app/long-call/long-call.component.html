@@ -1,0 +1,16 @@
+<h2>Long-Running Call With Polling (set timeout to 10 seconds to allow task to complete)</h2>
+<div>
+  <button [disabled]="!input.valid || taskStatus === 'submitted' || taskStatus === 'pending'" (click)="onSubmit()">Submit / Poll</button>
+  <p></p>
+  <button [disabled]="taskStatus === 'submitted' || taskStatus === 'pending'" (click)="onPollBadId()">Submit / Poll (Invalid ID)</button>
+  <p></p>
+  <label for="timeout">Enter timeout (between 1 and 10) in seconds: </label>
+  <input #input="ngModel" pattern="^([1-9]?|10)$" required=true [(ngModel)]="timeout">
+  <h2>Results from Server</h2>
+  <p *ngIf="taskStatus?.length > 0">Task Status: {{(taskStatus | uppercase) + progress}}</p>
+  <p *ngIf="httpStatusCode > 0">HTTP Status: {{httpStatusCode}}</p>
+  <div *ngIf="body?.length > 0">
+    <b>Response from server is </b>
+    <b *ngFor="let item of body">{{item}} </b>
+  </div>
+</div>
