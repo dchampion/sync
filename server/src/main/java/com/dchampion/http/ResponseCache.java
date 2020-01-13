@@ -22,6 +22,9 @@ interface ResponseCache<T> {
 
     /**
      * Look up a {@link ResponseEntity} using a {@link UUID} as a key.
+     *
+     * @param key a unique {@link UUID} that serves as the lookup key for the response entity.
+     * @return a {@link ResponseEntity} containing HTTP headers and, optionally, a body.
      */
     ResponseEntity<T> get(UUID key);
 
