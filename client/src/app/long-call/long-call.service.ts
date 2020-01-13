@@ -12,11 +12,19 @@ export class LongCallService {
 
   constructor(private http: HttpClient) {}
 
+  getSubmitPath(): string {
+    return this.submitURL;
+  }
+
+  getPollPath(taskId: string): string {
+    return `${this.pollURL}/${taskId}`;
+  }
+
   submit(body: TimeoutParameter): Observable<HttpResponse<any>> {
-    return this.http.post<HttpResponse<any>>(this.submitURL, body, {observe: 'response'});
+    return this.http.post<HttpResponse<any>>(this.getSubmitPath(), body, {observe: 'response'});
   }
 
   poll(taskId: string): Observable<HttpResponse<string[]>> {
-    return this.http.get<string[]>(`${this.pollURL}/${taskId}`, {observe: 'response'});
+    return this.http.get<string[]>(this.getPollPath(taskId), {observe: 'response'});
   }
 }

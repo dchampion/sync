@@ -12,6 +12,8 @@ import { TimerObservable } from 'rxjs/observable/TimerObservable';
 })
 export class LongCallComponent implements OnInit {
 
+  urlPath: string;
+
   taskStatus: string;
   httpStatusCode: number;
 
@@ -33,6 +35,7 @@ export class LongCallComponent implements OnInit {
   }
 
   resetVars() {
+    this.urlPath = '';
     this.progress = '';
     this.httpStatusCode = -1;
     this.body = [];
@@ -40,6 +43,7 @@ export class LongCallComponent implements OnInit {
 
   onSubmit() {
     this.resetVars();
+    this.urlPath = this.longCallService.getSubmitPath();
     this.submitSubscription = this.longCallService.submit({timeout: this.timeout}).subscribe(response => {
       this.submitSubscription.unsubscribe();
 
@@ -62,6 +66,7 @@ export class LongCallComponent implements OnInit {
   }
 
   poll(taskId: string) {
+    this.urlPath = this.longCallService.getPollPath(taskId);
     this.pollSubscription = this.longCallService.poll(taskId).subscribe(response => {
       this.httpStatusCode = response.status;
       this.taskStatus = response.headers.get('Task-Status');

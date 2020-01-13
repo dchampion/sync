@@ -72,6 +72,7 @@ public class AsyncRequestHandlerTest {
     }
 
     private List<String> exceptionThrowingLongRunnningTask() {
+        longRunningTask();
         throw new RuntimeException("I'm a RuntimeException!");
     }
 
@@ -164,7 +165,6 @@ public class AsyncRequestHandlerTest {
         for (int i = 0; i < 5; i++) {
             String id = handler.submit(() -> longRunningTask(), 30).getHeaders().getFirst("Task-Id");
             taskIds.add(id);
-            System.out.println("Submitted task id " + id);
         }
 
         // Poll for each task submitted above in a dedicated thread (i.e. poll in parallel).
