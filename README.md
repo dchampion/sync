@@ -12,7 +12,7 @@ This framework implements a simplified version of the <i>Long Running Operation 
 For documentation on the specific implementation details of this framework, you can build and inspect the Javadocs for this project (see the section <i>Build the Project</i> in this README for more information).
 
 ### Project Requirements
-* Maven 3+
+
 * Java 1.8+
 
 ### Install the Project
@@ -22,14 +22,14 @@ Use either of the following methods to install the project source code, and buil
 * Or, using the link on this page, you can download and extract a zipped version of this project into a local file system directory on your computer.
 
 ### Build the Project
-* Using a command (Windows) or bash (Linux or Mac) shell, navigate to the project root directory and type <code>mvn clean install</code>.
+* Using a command (Windows) or bash (Linux or Mac) shell, navigate to the project root directory and type <code>mvnw clean install</code> (if using Linux or Mac, type <code>./mvnw clean install</code>).
 
-* (Optional) To generate project Javadocs, type <code>mvn javadoc:javadoc</code>. To browse the Javadocs, open <code>server/target/site/apidocs/index.html</code> (relative to the project root directory) in a web browser.
+* (Optional) To generate project Javadocs, type <code>mvnw javadoc:javadoc</code> (if using Linux or Mac, type <code>./mvnw javadoc:javadoc</code>). To browse the Javadocs, open <code>server/target/site/apidocs/index.html</code> (relative to the project root directory) in a web browser.
 
 ### Run the Project
 * From the project root directory, type <code>java -jar server/target/http-server-1.0.0.jar</code> (Java 1.8+ must be in your search path for this command to work).
 
-* Navigate to <code>http<nolink>://localhost:8080</code> in a web browser.
+* Load <code>http<nolink>://localhost:8080</code> in a web browser.
 
 ### Start Experimenting
 Experiment with the capabilities of the long-call framework by manipulating the controls in its simple browser interface.
