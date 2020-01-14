@@ -11,6 +11,7 @@
   <version>1.0.0</version>
   <name>HTTP client</name>
   <description>Angular client for Java / Spring Boot HTTP framework</description>
+  <packaging>pom</packaging>
   <build>
     <plugins>
       <plugin>

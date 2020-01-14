@@ -13,7 +13,10 @@ import org.springframework.stereotype.Component;
 /**
  * An in-process implementation of {@link ResponseCache}. This implementation
  * will be injected into instances of {@link AsyncRequestHandler} if the property
- * {@code async.response_cache.scope} is set to {@code in-process}.
+ * {@code async.response_cache.scope=in-process} is set in {@code application.properties}.
+ * <p>
+ * Entries in this cache will expire 180 minutes after they are last accessed
+ * (that is written to, or read from, the cache).
  * 
  * @param <T> the type of the body of a {@link ResponseEntity}.
  * 
@@ -21,7 +24,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @ConditionalOnProperty(name = "async.response_cache.scope", havingValue = "in-process", matchIfMissing = true)
-class InProcessResponseCache<T> implements ResponseCache<T> {
+public class InProcessResponseCache<T> implements ResponseCache<T> {
 
     private Cache<UUID, ResponseEntity<T>> cache = 
             CacheBuilder.newBuilder()

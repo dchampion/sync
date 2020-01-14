@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
  * 
  * @param <T> the type of the body of the response entity.
  */
-interface ResponseCache<T> {
+public interface ResponseCache<T> {
     
     /**
      * Put a {@link ResponseEntity} in the cache.

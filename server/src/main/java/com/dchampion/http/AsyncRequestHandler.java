@@ -22,14 +22,14 @@ import org.springframework.stereotype.Component;
  * asynchronously, to report on the status of the method while it is executing,
  * and to return the results of the method when it is complete.
  * <p>
- * Use the {@link #submit(Callable, int)} method to submit for asynchronous
+ * Use the {@link #submit(Callable, int) submit} method to submit for asynchronous
  * execution a long-running task wrapped in a {@link Callable} instance. Then
- * use the {@link #poll(String)} method to check the status of the long-running
+ * use the {@link #poll(String) poll} method to check the status of the long-running
  * task at periodic intervals. If the long-running task has completed by the
- * time {@link #poll(String)} is called, then {@link #poll(String)} will return
- * a status of {@link TaskStatus#COMPLETE}, along with the results of the
- * long-running task. Otherwise {@link #poll(String)} will return a status of
- * {@link TaskStatus#PENDING}.
+ * time {@link #poll(String) poll} is called, then {@link #poll(String) poll} will return
+ * a status of {@link TaskStatus#COMPLETE COMPLETE}, along with the results of the
+ * long-running task. Otherwise {@link #poll(String) poll} will return a status of
+ * {@link TaskStatus#PENDING PENDING}.
  * <p>
  * The cardinality of runtime instances of this class should be one instance per
  * long-running REST controller method. That is, when using this class, declare
@@ -51,6 +51,7 @@ import org.springframework.stereotype.Component;
  * table in your database with the following definition:</li>
  * </ol>
  * <pre>
+ * <br>
  * CREATE TABLE RESPONSE_CACHE
  * (
  *   UUID               CHAR(36 BYTE),
@@ -61,6 +62,7 @@ import org.springframework.stereotype.Component;
  * Below is an example usage of this class, inside a REST controller class containing
  * a call to a long-running method:
  * <pre>
+ * <br>
  * &#64;Autowired
  * private AsyncRequestHandler&lt;List&lt;String&gt;&gt; handler;
  * 
@@ -82,30 +84,30 @@ import org.springframework.stereotype.Component;
  *     return Arrays.asList("Hello", "Client!");
  * }
  * </pre>
- * 
  * Below is the HTTP client's perspective of the above implementation. The first call
  * submits the long-running task for asynchronous execution:
  * <pre>
- * Reqeust
+ * <br>
+ * <b>Reqeust</b>
  * URL:             http://localhost:8080/submit
  * Method:          POST
  * Body (Optional): {"timeout":600}
  *
- * Response
+ * <b>Response</b>
  * Status Code:     202 (Accepted)
  * Header Values:   Task-Status=submitted
  *                  Task-Id=cf645961-9b2c-4a60-b994-a9f093e5ac56
  * Body:            null
  * </pre>
- * 
  * Subsequent calls poll the previously submitted long-running task for its
  * status, supplying the {@code Task-Id} returned by the first call to this method:
  * <pre>
- * Request
+ * <br>
+ * <b>Request</b>
  * URL:             http://localhost:8080/poll/cf645961-9b2c-4a60-b994-a9f093e5ac56
  * Method:          GET
  *
- * Response
+ * <b>Response</b>
  * Status Codes:    200 (OK) if Task-Status is "pending" or "complete"
  *                  400 (BAD_REQUEST) if Task-Status is "unsubmitted"
  *                  500 (INTERNAL_SERVER_ERROR) if Task-Status is "error" or "timedout"
@@ -126,21 +128,19 @@ import org.springframework.stereotype.Component;
 @Component
 public class AsyncRequestHandler<T> {
 
-    /**
-     * Task status indicators.
-     */
+    /** Task status indicators. */
     public enum TaskStatus {
-        /** Task has been submitted for execution. */
+        /** The task has been submitted for execution. */
         SUBMITTED("submitted"),
-        /** Task is in progress. */
+        /** The task is in progress. */
         PENDING("pending"),
-        /** Task has completed. */
+        /** The task has completed. */
         COMPLETE("complete"),
-        /** Task has either never been submitted, or completed on a previous call to poll. */
+        /** The task has either never been submitted, or completed on a previous call to poll. */
         UNSUBMITTED("unsubmitted"),
-        /** Task failed to complete due to error. */
+        /** The task failed to complete due to an error. */
         ERROR("error"),
-        /** Task timed out. */
+        /** The task failed to complete before the timeout period expired. */
         TIMEDOUT("timedout");
 
         private final String status;
@@ -182,14 +182,14 @@ public class AsyncRequestHandler<T> {
      *                 task is complete.
      * @param timeout  The time allowed, in seconds, for the long-running task to complete. If
      *                 the task does not complete within this duration, this class'
-     *                 {@link #poll(String)} method will report a status of
-     *                 {@link TaskStatus#TIMEDOUT} in its header's {@code Task-Status} field.
+     *                 {@link #poll(String) poll} method will report a status of
+     *                 {@link TaskStatus#TIMEDOUT TIMEDOUT} in its header's {@code Task-Status} field.
      *                 This value must be a positive integer.
      *
      * @return a {@link ResponseEntity} containing no body, but with a header
-     *         containing a {@code Task-Status} of {@link TaskStatus#SUBMITTED}, and a
+     *         containing a {@code Task-Status} of {@link TaskStatus#SUBMITTED SUBMITTED}, and a
      *         {@code Task-Id} to be used in subsequent calls to this class'
-     *         {@link #poll(String)} method. This {@link ResponseEntity} should be
+     *         {@link #poll(String) poll} method. This {@link ResponseEntity} should be
      *         returned immediately to the client making the long-running REST call.
      *         An HTTP status of {@code 202 (Accepted)} is included in the response to
      *         further indicate to the client that the request has been received but
@@ -263,7 +263,7 @@ public class AsyncRequestHandler<T> {
     }
 
     /**
-     * {@link #doTask(UUID, Callable, int)} helper method to build up an error response.
+     * {@link #doTask(UUID, Callable, int) doTask} helper method to build up an error response.
      * 
      * @param uuid The task ID.
      * @param status The {@link TaskStatus}.
@@ -290,28 +290,29 @@ public class AsyncRequestHandler<T> {
 
     /**
      * Polls the status of a long-running task previously submitted to this class'
-     * {@link #submit(Callable, int)} method, given its {@code Task-Id}.
+     * {@link #submit(Callable, int) submit} method, given its {@code Task-Id}.
      * <p>
      * One of five possible statuses is returned in the header of the
      * {@link ResponseEntity} returned by this method, depending on the state of the
      * long-running task:
      * <ol>
-     * <li>{@code Task-Status}={@link TaskStatus#UNSUBMITTED}: No task was found for the
+     * <li>{@code Task-Status}={@link TaskStatus#UNSUBMITTED UNSUBMITTED}: No task was found for the
      * supplied id; either no such task was ever submitted, or the task has since
      * completed.</li>
-     * <li>{@code Task-Status}={@link TaskStatus#PENDING}: The task is currently
+     * <li>{@code Task-Status}={@link TaskStatus#PENDING PENDING}: The task is currently
      * running.</li>
-     * <li>{@code Task-Status}={@link TaskStatus#COMPLETE}: The task is complete.</li>
-     * <li>{@code Task-Status}={@link TaskStatus#ERROR}: The task threw an exception, or was
+     * <li>{@code Task-Status}={@link TaskStatus#COMPLETE COMPLETE}: The task is complete.</li>
+     * <li>{@code Task-Status}={@link TaskStatus#ERROR ERROR}: The task threw an exception, or was
      * interrupted by another thread.</li>
-     * <li>{@code Task-Status}={@link TaskStatus#TIMEDOUT}: The task did not complete before
+     * <li>{@code Task-Status}={@link TaskStatus#TIMEDOUT TIMEDOUT}: The task did not complete before
      * the timeout value specified in the submit() call expired.</li>
      * </ol>
-     * If the {@code Task-Status} is {@link TaskStatus#COMPLETE}, then the results of the
+     * <p>
+     * If the {@code Task-Status} is {@link TaskStatus#COMPLETE COMPLETE}, then the results of the
      * long-running task will be included in the body of the {@link ResponseEntity}
      * returned by this method. In all other cases, the body will be {@code null}.
      * <p>
-     * If {@code Task-Status} is {@link TaskStatus#ERROR}, then two additional headers
+     * If {@code Task-Status} is {@link TaskStatus#ERROR ERROR}, then two additional headers
      * will be included in the response indicating the type of error
      * ({@code Task-Error-Type}) and an error message ({@code Task-Error-Message}).
      * <p>
@@ -320,11 +321,11 @@ public class AsyncRequestHandler<T> {
      *
      * @param id the id of the long-running task. This id is supplied in the
      *           {@code Task-Id} header of the {@link ResponseEntity} returned by this
-     *           class' {@link #submit(Callable, int)} method.
+     *           class' {@link #submit(Callable, int) submit} method.
      *
      * @return a {@link ResponseEntity} containing a {@code Task-Status} header indicating
      *         the status of the long-running task and, if the status is
-     *         {@link TaskStatus#COMPLETE}, the results of the long-running task in its
+     *         {@link TaskStatus#COMPLETE COMPLETE}, the results of the long-running task in its
      *         body.
      *
      * @throws NullPointerException if arg {@code id} supplied to this method is {@code null}.
