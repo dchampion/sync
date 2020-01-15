@@ -35,7 +35,7 @@
               <goal>npm</goal>
             </goals>
             <configuration>
-              <arguments>install --no-fund --no-optional --ignore-scripts</arguments>
+              <arguments>ci --no-fund --no-optional --ignore-scripts</arguments>
             </configuration>
           </execution>
           <execution>
