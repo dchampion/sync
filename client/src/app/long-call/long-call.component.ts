@@ -14,6 +14,7 @@ export class LongCallComponent implements OnInit {
 
   urlPath: string;
 
+  taskId: string;
   taskStatus: string;
   httpStatusCode: number;
 
@@ -49,9 +50,9 @@ export class LongCallComponent implements OnInit {
 
       this.httpStatusCode = response.status;
       this.taskStatus = response.headers.get('Task-Status');
-      const taskId = response.headers.get('Task-Id');
+      this.taskId = response.headers.get('Task-Id');
 
-      this.timerSubscription = TimerObservable.create(2000, 2000).subscribe(() => this.poll(taskId));
+      this.timerSubscription = TimerObservable.create(2000, 2000).subscribe(() => this.poll());
     },
     (error: HttpErrorResponse) => {
       this.httpStatusCode = error.status;
@@ -62,12 +63,13 @@ export class LongCallComponent implements OnInit {
 
   onPollBadId() {
     this.resetVars();
-    this.poll('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa');
+    this.taskId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    this.poll();
   }
 
-  poll(taskId: string) {
-    this.urlPath = this.longCallService.getPollPath(taskId);
-    this.pollSubscription = this.longCallService.poll(taskId).subscribe(response => {
+  poll() {
+    this.urlPath = this.longCallService.getPollPath(this.taskId);
+    this.pollSubscription = this.longCallService.poll(this.taskId).subscribe(response => {
       this.httpStatusCode = response.status;
       this.taskStatus = response.headers.get('Task-Status');
       if (this.taskStatus === 'pending') {

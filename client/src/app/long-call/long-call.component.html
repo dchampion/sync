@@ -7,9 +7,10 @@
   <label for="timeout">Enter timeout (between 1 and 10) in seconds: </label>
   <input #input="ngModel" pattern="^([1-9]?|10)$" required=true [(ngModel)]="timeout">
   <h2>Results from Server</h2>
-  <p *ngIf="urlPath?.length > 0">URL Path: {{urlPath}}</p>
-  <p *ngIf="taskStatus?.length > 0">Task Status: {{(taskStatus | uppercase) + progress}}</p>
-  <p *ngIf="httpStatusCode > 0">HTTP Status: {{httpStatusCode}}</p>
+  <p *ngIf="urlPath?.length > 0"><b>URL Path:       </b><i>{{urlPath}}</i></p>
+  <p *ngIf="taskId?.length > 0"><b>Task ID:         </b><i>{{taskId}}</i></p>
+  <p *ngIf="taskStatus?.length > 0"><b>Task Status: </b><i>{{(taskStatus | uppercase) + progress}}</i></p>
+  <p *ngIf="httpStatusCode > 0"><b>HTTP Status:     </b><i>{{httpStatusCode}}</i></p>
   <div *ngIf="body?.length > 0">
     <b>Response from server is </b>
     <b *ngFor="let item of body">{{item}} </b>
