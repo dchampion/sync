@@ -7,7 +7,7 @@ But what about the internet, where a web client (browser, e.g.) makes a request 
 
 For this type of interaction we need a different approach; one that is implemented in this small framework, and to which I refer as the <i>order-for-pickup</i> pattern (whereas the traditional callback might be referred to as <i>order-for-delivery</i> pattern).
 
-This framework implements a simplified version of the <i>Long Running Operation with Polling</i> pattern <a href=http://restalk-patterns.org/long-running-operation-polling.html target="_blank">described in this blog post</a>. Some known uses cases of this pattern are the <i><a href=https://docs.aws.amazon.com/amazonglacier/latest/dev/job-operations.html target="_blank">AWS Glacier REST API</a></i> and the <i><a href=https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-vm-rest-api target="_blank">Microsoft Azure REST API for Virtual Machines</a></i>.
+This framework implements a simplified version of the <i>Long Running Operation with Polling</i> pattern <a href=http://restalk-patterns.org/long-running-operation-polling.html target="_blank">described in this blog post</a>. Some known use cases of this pattern are the <i><a href=https://docs.aws.amazon.com/amazonglacier/latest/dev/job-operations.html target="_blank">AWS Glacier REST API</a></i> and the <i><a href=https://docs.microsoft.com/en-us/azure/virtual-machines/linux/create-vm-rest-api target="_blank">Microsoft Azure REST API for Virtual Machines</a></i>.
 
 For documentation on the specific implementation details of this framework, you can build and inspect the Javadocs for this project (see the section <i>Build the Project</i> in this README for more information).
 
