@@ -7,7 +7,7 @@
       <version>2.2.2.RELEASE</version>
       <relativePath/>
   </parent>
-  <groupId>com.championd</groupId>
+  <groupId>com.dchampion</groupId>
   <artifactId>http</artifactId>
   <version>1.0.0</version>
   <name>HTTP client and server</name>
