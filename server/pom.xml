@@ -4,15 +4,15 @@
 
   <parent>
     <groupId>com.dchampion</groupId>
-    <artifactId>http</artifactId>
+    <artifactId>framework-demo</artifactId>
     <version>1.0.0</version>
   </parent>
 
-  <groupId>com.dchampion.http</groupId>
-  <artifactId>http-server</artifactId>
+  <groupId>com.dchampion.framework-demo</groupId>
+  <artifactId>server</artifactId>
   <version>1.0.0</version>
-  <name>HTTP server</name>
-  <description>Java / Spring Boot HTTP framework</description>
+  <name>Framework demo server</name>
+  <description>Java / Spring Boot framework server</description>
   <packaging>jar</packaging>
 
   <properties>

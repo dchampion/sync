@@ -10,10 +10,10 @@
   </parent>
 
   <groupId>com.dchampion</groupId>
-  <artifactId>http</artifactId>
+  <artifactId>framework-demo</artifactId>
   <version>1.0.0</version>
-  <name>HTTP client and server</name>
-  <description>Java / Spring Boot HTTP framework with Angular client</description>
+  <name>Framework demo client and server</name>
+  <description>Java / Spring Boot framework with Angular client</description>
   <packaging>pom</packaging>
 
   <modules>
