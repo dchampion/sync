@@ -14,13 +14,24 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+/**
+ * A service that fronts a persistent data store for {@link Response} entities.
+ */
 @Service
-public class ResponseService<T> {
+public class ResponseService {
 
     @Autowired
     private ResponseRepository responseRepository;
 
-    public void put(UUID key, ResponseEntity<T> responseEntity) {
+    /**
+     * Either saves a new {@link ResponseEntity} in the data store, or updates
+     * an existing one if it is aready present in the data store.
+     *
+     * @param <T> The type of the {@link ResponseEntity}'s body.
+     * @param key The key by which to store a {@link ResponseEntity}.
+     * @param responseEntity The {@link ResponseEntity} to store.
+     */
+    public <T> void saveOrUpdate(UUID key, ResponseEntity<T> responseEntity) {
         Response response = getNewOrExisting(key);
 
         StringBuilder headerBuilder = new StringBuilder();
@@ -38,9 +49,22 @@ public class ResponseService<T> {
         responseRepository.save(response);
     }
 
-    public ResponseEntity<T> get(UUID key) {
+    /**
+     * Retrieves the {@link ResponseEntity} corresponding to the given key from
+     * the data store, or {@code null} if no such entity exists in the data
+     * store.
+     *
+     * @param <T> The type of the {@link ResponseEntity}'s body.
+     * @param key The key by which to retrieve a {@link ResponseEntity}.
+     *
+     * @return A {@link ResponseEntity} corresponding to the given key, or
+     * {@code null} if no such entity exists.
+     */
+    public <T> ResponseEntity<T> getIfPresent(UUID key) {
         Response response = getNewOrExisting(key);
 
+        // A Response entity, if present in the database, must
+        // have headers; if not, the caller expects a null return value.
         if (response.getHeaders() == null) {
             return null;
         }
@@ -58,6 +82,12 @@ public class ResponseService<T> {
         return responseEntity;
     }
 
+    /**
+     * Deletes the {@link ResponseEntity} corresponding to the given key from
+     * the data store.
+     *
+     * @param key The key corresponding to the {@link ResponseEntity}.
+     */
     public void remove(UUID key) {
         Response response = getNewOrExisting(key);
         responseRepository.delete(response);
@@ -67,11 +97,9 @@ public class ResponseService<T> {
         Response entity = new Response();
         entity.setUuid(key.toString());
 
-        Example<Response> ex = Example.of(entity);
-        List<Response> existing = responseRepository.findAll(ex);
-        if (existing.size() == 1) {
-            entity = existing.get(0);
-        }
-        return entity;
+        Example<Response> example = Example.of(entity);
+        List<Response> existing = responseRepository.findAll(example);
+
+        return existing.size() == 1 ? existing.get(0) : entity;
     }
 }

@@ -25,16 +25,16 @@ import org.springframework.stereotype.Component;
 public class SharedResponseCache<T> implements ResponseCache<T> {
 
     @Autowired
-    private ResponseService<T> responseService;
+    private ResponseService responseService;
 
     @Override
     public void put(UUID key, ResponseEntity<T> response) {
-        responseService.put(key, response);
+        responseService.saveOrUpdate(key, response);
     }
 
     @Override
     public ResponseEntity<T> get(UUID key) {
-        return responseService.get(key);
+        return responseService.getIfPresent(key);
     }
 
     @Override

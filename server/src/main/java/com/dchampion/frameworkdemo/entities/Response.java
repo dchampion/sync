@@ -1,5 +1,7 @@
 package com.dchampion.frameworkdemo.entities;
 
+import java.util.logging.Logger;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -25,6 +27,9 @@ public class Response {
 
     @Transient
     private static final ObjectMapper mapper = new ObjectMapper();
+
+    @Transient
+    private static final Logger log = Logger.getLogger(Response.class.getName());
 
     public void setId(Long id) {
         this.id = id;
@@ -54,7 +59,7 @@ public class Response {
         try {
             this.body = mapper.writeValueAsString(body);
         } catch (JsonProcessingException e) {
-            // TODO: Do something useful here.
+            log.warning(e.getMessage());
         }
     }
 
@@ -63,7 +68,7 @@ public class Response {
             try {
                 return mapper.readValue(body, Object.class);
             } catch (JsonProcessingException e) {
-                // TODO: Do something useful here.
+                log.warning(e.getMessage());
             }
         }
         return body;
