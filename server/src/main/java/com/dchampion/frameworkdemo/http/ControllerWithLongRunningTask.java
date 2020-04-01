@@ -1,4 +1,4 @@
-package com.dchampion.http;
+package com.dchampion.frameworkdemo.http;
 
 import java.util.List;
 import java.util.Arrays;

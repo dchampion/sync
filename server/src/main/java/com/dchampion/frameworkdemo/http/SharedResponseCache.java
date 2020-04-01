@@ -1,11 +1,12 @@
-package com.dchampion.http;
+package com.dchampion.frameworkdemo.http;
 
 import java.util.UUID;
 
 import com.dchampion.framework.http.ResponseCache;
+import com.dchampion.frameworkdemo.services.ResponseService;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -23,19 +24,21 @@ import org.springframework.stereotype.Component;
 @ConditionalOnProperty(name = "async.response_cache.scope", havingValue = "shared")
 public class SharedResponseCache<T> implements ResponseCache<T> {
 
+    @Autowired
+    private ResponseService<T> responseService;
+
     @Override
     public void put(UUID key, ResponseEntity<T> response) {
-        // TODO: Implement me.
+        responseService.put(key, response);
     }
 
     @Override
     public ResponseEntity<T> get(UUID key) {
-        // TODO: Implement me.
-        return new ResponseEntity<T>(HttpStatus.I_AM_A_TEAPOT);
+        return responseService.get(key);
     }
 
     @Override
     public void remove(UUID key) {
-        // TODO: Implement me.
+        responseService.remove(key);
     }
 }
