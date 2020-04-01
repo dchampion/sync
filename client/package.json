@@ -19,6 +19,8 @@
     "@angular/platform-browser": "~8.2.14",
     "@angular/platform-browser-dynamic": "~8.2.14",
     "@angular/router": "~8.2.14",
+    "kind-of": "^6.0.3",
+    "minimist": "^1.2.5",
     "rxjs": "~6.4.0",
     "rxjs-compat": "^6.5.4",
     "tslib": "^1.10.0",
