@@ -3,7 +3,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
 
 import { Observable } from 'rxjs/Observable';
 
-import { TimeoutParameter } from './TimeoutParameter';
+import { TimeoutParameter } from '../long-call/TimeoutParameter';
 
 @Injectable()
 export class LongCallService {

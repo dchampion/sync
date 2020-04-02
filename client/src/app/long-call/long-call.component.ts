@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { LongCallService } from './long-call.service';
+import { LongCallService } from '../services/long-call.service';
 import { ISubscription } from 'rxjs/Subscription';
 import { HttpErrorResponse } from '@angular/common/http';
 import { TimerObservable } from 'rxjs/observable/TimerObservable';
@@ -8,7 +8,7 @@ import { TimerObservable } from 'rxjs/observable/TimerObservable';
   selector: 'app-long-call',
   templateUrl: './long-call.component.html',
   providers: [LongCallService],
-  styleUrls: ['./long-call.component.css']
+  styleUrls: ['../content/app.less']
 })
 export class LongCallComponent implements OnInit {
 
