@@ -38,6 +38,12 @@ button:disabled {
   cursor: auto;
 }
 
+.divider {
+  width:   5px;
+  height:  auto;
+  display: inline-block;
+}
+
 /* Navigation link styles */
 nav a {
   padding: 5px 10px;

@@ -7,8 +7,7 @@ import { TimerObservable } from 'rxjs/observable/TimerObservable';
 @Component({
   selector: 'app-long-call',
   templateUrl: './long-call.component.html',
-  providers: [LongCallService],
-  styleUrls: ['../content/app.less']
+  providers: [LongCallService]
 })
 export class LongCallComponent implements OnInit {
 
