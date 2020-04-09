@@ -1,7 +1,7 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { first } from 'rxjs/operators';
+import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
 
 import { AlertService, UserService, AuthenticationService } from '../services';
 
@@ -28,7 +28,7 @@ export class RegisterComponent implements OnInit {
     this.registerForm = this.formBuilder.group({
       firstName: ['', Validators.required],
       lastName: ['', Validators.required],
-      username: ['', Validators.required],
+      userName: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
@@ -49,23 +49,16 @@ export class RegisterComponent implements OnInit {
       return;
     }
 
-    console.log(this.registerForm.value);
-
     this.loading = true;
-    this.userService
-      .register(this.registerForm.value)
-      .pipe(first())
-      .subscribe(
-        data => {
-          console.log('3');
-          this.alertService.success('Registration successful', true);
-          this.router.navigate(['/login']);
-        },
-        error => {
-          console.log('4');
-          this.alertService.error(error);
-          this.loading = false;
-        }
-      );
+    this.userService.register(this.registerForm.value).subscribe(
+      (response: string) => {
+        this.alertService.success(response, true);
+        this.router.navigate(['/login']);
+      },
+      (err: HttpErrorResponse) => {
+        this.alertService.error(err.error);
+        this.loading = false;
+      }
+    );
   }
 }

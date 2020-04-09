@@ -5,6 +5,8 @@ import { User } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
+  private registerUrl = 'users/register';
+
   constructor(private http: HttpClient) {}
 
   getAll() {
@@ -12,7 +14,7 @@ export class UserService {
   }
 
   register(user: User) {
-    return this.http.post(`${config.apiUrl}/users/register`, user);
+    return this.http.post(this.registerUrl, user, {responseType: 'text'});
   }
 
   delete(id: number) {

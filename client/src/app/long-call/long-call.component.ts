@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { LongCallService } from '../services/long-call.service';
 import { ISubscription } from 'rxjs/Subscription';
-import { HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpResponse } from '@angular/common/http';
 import { TimerObservable } from 'rxjs/observable/TimerObservable';
 
 @Component({
@@ -11,16 +11,16 @@ import { TimerObservable } from 'rxjs/observable/TimerObservable';
 })
 export class LongCallComponent implements OnInit {
 
-  urlPath: string;
+  protected urlPath: string;
 
-  taskId: string;
-  taskStatus: string;
-  httpStatusCode: number;
+  protected taskId: string;
+  protected taskStatus: string;
+  protected httpStatusCode: number;
 
-  body: string[];
-  timeout: number;
+  protected body: string[];
+  protected timeout: number;
 
-  progress: string;
+  protected progress: string;
 
   private submitSubscription: ISubscription;
   private pollSubscription: ISubscription;
@@ -43,51 +43,59 @@ export class LongCallComponent implements OnInit {
 
   onSubmit() {
     this.resetVars();
+
     this.urlPath = this.longCallService.getSubmitPath();
-    this.submitSubscription = this.longCallService.submit({timeout: this.timeout}).subscribe(response => {
-      this.submitSubscription.unsubscribe();
 
-      this.httpStatusCode = response.status;
-      this.taskStatus = response.headers.get('Task-Status');
-      this.taskId = response.headers.get('Task-Id');
+    this.submitSubscription = this.longCallService.submit({timeout: this.timeout}).subscribe(
+      (response: HttpResponse<any>) => {
+        this.submitSubscription.unsubscribe();
 
-      this.timerSubscription = TimerObservable.create(2000, 2000).subscribe(() => this.poll());
-    },
-    (error: HttpErrorResponse) => {
-      this.httpStatusCode = error.status;
-      this.taskStatus = error.headers.get('Task-Status');
-      this.unsubscribe();
-    });
+        this.httpStatusCode = response.status;
+        this.taskStatus = response.headers.get('Task-Status');
+        this.taskId = response.headers.get('Task-Id');
+
+        this.timerSubscription = TimerObservable.create(2000, 2000).subscribe(() => this.poll());
+      },
+      (error: HttpErrorResponse) => {
+        this.httpStatusCode = error.status;
+        this.taskStatus = error.headers.get('Task-Status');
+
+        this.unsubscribe();
+      }
+    );
   }
 
   onPollBadId() {
     this.resetVars();
-    this.taskId = 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa';
+    this.taskId = 'd2ab1fe6-73da-4ef7-a440-75181d22a591';
     this.poll();
   }
 
   poll() {
     this.urlPath = this.longCallService.getPollPath(this.taskId);
-    this.pollSubscription = this.longCallService.poll(this.taskId).subscribe(response => {
-      this.httpStatusCode = response.status;
-      this.taskStatus = response.headers.get('Task-Status');
-      if (this.taskStatus === 'pending') {
-        this.progress += '.';
-      } else {
-        this.unsubscribe();
 
-        if (this.taskStatus === 'complete') {
-          this.body = response.body;
+    this.pollSubscription = this.longCallService.poll(this.taskId).subscribe(
+      (response: HttpResponse<string[]>) => {
+        this.httpStatusCode = response.status;
+        this.taskStatus = response.headers.get('Task-Status');
+        if (this.taskStatus === 'pending') {
+          this.progress += '.';
+        } else {
+          this.unsubscribe();
+
+          if (this.taskStatus === 'complete') {
+            this.body = response.body;
+          }
+          this.progress = '';
         }
+      },
+      (error: HttpErrorResponse) => {
+        this.httpStatusCode = error.status;
+        this.taskStatus = error.headers.get('Task-Status');
+        this.unsubscribe();
         this.progress = '';
       }
-    },
-    (error: HttpErrorResponse) => {
-      this.httpStatusCode = error.status;
-      this.taskStatus = error.headers.get('Task-Status');
-      this.unsubscribe();
-      this.progress = '';
-    });
+    );
   }
 
   unsubscribe() {

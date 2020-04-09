@@ -7,17 +7,16 @@ import { TimeoutParameter } from '../models';
 
 @Injectable()
 export class LongCallService {
-  private submitURL = 'long-call/submit';
-  private pollURL = 'long-call/poll';
+  private rootPath = 'long-call/';
 
   constructor(private http: HttpClient) {}
 
   getSubmitPath(): string {
-    return this.submitURL;
+    return this.rootPath.concat('submit');
   }
 
   getPollPath(taskId: string): string {
-    return `${this.pollURL}/${taskId}`;
+    return this.rootPath.concat('poll/').concat(taskId);
   }
 
   submit(body: TimeoutParameter): Observable<HttpResponse<any>> {
