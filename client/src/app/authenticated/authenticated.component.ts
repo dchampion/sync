@@ -20,9 +20,9 @@ export class AuthenticatedComponent implements OnInit {
     this.loadAllUsers();
   }
 
-  deleteUser(id: number) {
+  delete(user) {
     this.userService
-      .delete(id)
+      .delete(user)
       .pipe(first())
       .subscribe(() => this.loadAllUsers());
   }

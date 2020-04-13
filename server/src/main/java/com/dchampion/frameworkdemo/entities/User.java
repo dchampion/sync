@@ -13,7 +13,7 @@ public class User {
     @Id
     @GeneratedValue
     private Long id;
-    private String userName;
+    private String username;
     private String firstName;
     private String lastName;
     private String password;
@@ -29,12 +29,12 @@ public class User {
         this.id = id;
     }
 
-    public String getUserName() {
-        return userName;
+    public String getUsername() {
+        return username;
     }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getFirstName() {
@@ -72,13 +72,13 @@ public class User {
     @Override
     public String toString() {
         return "User [firstName=" + firstName + ", id=" + id + ", lastName=" + lastName + ", password=" + password
-                + ", token=" + token + ", userName=" + userName + "]";
+                + ", token=" + token + ", username=" + username + "]";
     }
 
     @Override
     public int hashCode() {
         final int prime = 31;
-        return prime + ((userName == null) ? 0 : userName.hashCode());
+        return prime + ((username == null) ? 0 : username.hashCode());
     }
 
     @Override
@@ -90,10 +90,10 @@ public class User {
         if (getClass() != obj.getClass())
             return false;
         User other = (User) obj;
-        if (userName == null) {
-            if (other.userName != null)
+        if (username == null) {
+            if (other.username != null)
                 return false;
-        } else if (!userName.equals(other.userName))
+        } else if (!username.equals(other.username))
             return false;
         return true;
     }

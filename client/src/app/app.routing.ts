@@ -10,7 +10,7 @@ import { LongCallComponent } from './long-call';
 const routes: Routes = [
   { path: '', component: HomeComponent },
   {
-    path: 'authenticate',
+    path: 'authenticated',
     component: AuthenticatedComponent,
     canActivate: [AuthGuard]
   },

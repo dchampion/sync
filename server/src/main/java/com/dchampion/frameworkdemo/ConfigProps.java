@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 public class ConfigProps {
     private String breachApiHashAlgo;
     private String breachApiURIRoot;
+    private int bCryptStrength;
 
     public String getBreachApiHashAlgo() {
         return breachApiHashAlgo;
@@ -23,5 +24,13 @@ public class ConfigProps {
 
     public void setBreachApiURIRoot(String breachApiURIRoot) {
         this.breachApiURIRoot = breachApiURIRoot;
+    }
+
+    public int getbCryptStrength() {
+        return bCryptStrength;
+    }
+
+    public void setbCryptStrength(int bCryptStrength) {
+        this.bCryptStrength = bCryptStrength;
     }
 }

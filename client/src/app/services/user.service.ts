@@ -5,19 +5,18 @@ import { User } from '../models';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private registerUrl = 'users/register';
 
   constructor(private http: HttpClient) {}
 
   getAll() {
-    return this.http.get<User[]>(`${config.apiUrl}/users`);
+    return this.http.get<User[]>('/users');
   }
 
   register(user: User) {
-    return this.http.post(this.registerUrl, user, {responseType: 'text'});
+    return this.http.post('users/register', user, {responseType: 'text'});
   }
 
-  delete(id: number) {
-    return this.http.delete(`${config.apiUrl}/users/${id}`);
+  delete(user: User) {
+    return this.http.delete(`users/${user.id}`);
   }
 }

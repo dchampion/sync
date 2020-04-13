@@ -21,7 +21,7 @@ export class LoginComponent implements OnInit {
   ) {
     // redirect to home if already logged in
     if (this.authenticationService.currentUserValue) {
-      this.router.navigate(['/']);
+      this.router.navigate(['/authenticated']);
     }
   }
 
@@ -32,7 +32,7 @@ export class LoginComponent implements OnInit {
     });
 
     // get return url from route parameters or default to '/'
-    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/';
+    this.returnUrl = this.route.snapshot.queryParams['returnUrl'] || '/authenticated';
   }
 
   // convenience getter for easy access to form fields
@@ -54,13 +54,12 @@ export class LoginComponent implements OnInit {
     this.loading = true;
     this.authenticationService
       .login(this.f.username.value, this.f.password.value)
-      .pipe(first())
       .subscribe(
         data => {
           this.router.navigate([this.returnUrl]);
         },
-        error => {
-          this.alertService.error(error);
+        err => {
+          this.alertService.error(err.error);
           this.loading = false;
         }
       );

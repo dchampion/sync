@@ -4,6 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.List;
 import java.util.logging.Logger;
 
 import com.dchampion.frameworkdemo.ConfigProps;
@@ -32,21 +33,52 @@ public class UserService {
 
     private static final Logger log = Logger.getLogger(UserService.class.getName());
 
-    private final PasswordEncoder encoder = new BCryptPasswordEncoder();
+    private PasswordEncoder encoder;
 
-    public void addUser(User user) {
+    public PasswordEncoder getEncoder() {
+        if (encoder == null) {
+            encoder = new BCryptPasswordEncoder(props.getbCryptStrength());
+        }
+        return encoder;
+    }
+
+    public List<User> getAll() {
+        return userRepository.findAll();
+    }
+
+    public User authenticate(User candidate) {
+        List<User> users = userRepository.findAll(probe(candidate));
+        if (users.size() == 1) {
+            User user = users.get(0);
+            if (getEncoder().matches(candidate.getPassword(), user.getPassword())) {
+                return user;
+            }
+        }
+        return null;
+    }
+
+    public void add(User user) {
         if (!exists(user)) {
-            String encoded = encoder.encode(user.getPassword());
+            String encoded = getEncoder().encode(user.getPassword());
             user.setPassword(encoded);
             userRepository.save(user);
         }
     }
 
+    public void delete(long id) {
+        User user = new User();
+        user.setId(id);
+        userRepository.delete(user);
+    }
+
     public boolean exists(User user) {
+        return userRepository.exists(probe(user));
+    }
+
+    private Example<User> probe(User user) {
         User probe = new User();
-        probe.setUserName(user.getUserName());
-        Example<User> example = Example.of(probe);
-        return userRepository.exists(example);
+        probe.setUsername(user.getUsername());
+        return Example.of(probe);
     }
 
     public boolean isBreached(User user) {
