@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/long-call")
-public class ControllerWithLongRunningTask {
+public class LongRunningTaskController {
 
     @Autowired
     private AsyncRequestHandler<List<String>> handler;
