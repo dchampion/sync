@@ -8,9 +8,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * The application entry point.
  */
-@SpringBootApplication(scanBasePackageClasses={LongCallWithPollingDemo.class,Framework.class})
-public class LongCallWithPollingDemo {
+@SpringBootApplication(scanBasePackageClasses={FrameworkDemo.class,Framework.class})
+public class FrameworkDemo {
 	public static void main(String[] args) {
-		SpringApplication.run(LongCallWithPollingDemo.class, args);
+		SpringApplication.run(FrameworkDemo.class, args);
 	}
 }
