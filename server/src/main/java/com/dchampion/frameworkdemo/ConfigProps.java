@@ -3,6 +3,10 @@ package com.dchampion.frameworkdemo;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Loads and publishes properties prefixed with {@code framework-demo} from
+ * {@code application.properties} to instances that autowire this class.
+ */
 @Configuration
 @ConfigurationProperties(prefix = "framework-demo")
 public class ConfigProps {

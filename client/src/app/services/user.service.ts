@@ -17,6 +17,6 @@ export class UserService {
   }
 
   delete(user: User) {
-    return this.http.delete(`users/${user.id}`);
+    return this.http.delete(`users/${user.username}`);
   }
 }

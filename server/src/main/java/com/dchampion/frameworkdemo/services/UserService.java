@@ -22,6 +22,10 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+/**
+ * A {@link Service} to manage the registration, authentication and retrieval
+ * of {@link User}s from the datastore.
+ */
 @Service
 public class UserService {
 
@@ -42,50 +46,100 @@ public class UserService {
         return encoder;
     }
 
+    /**
+     * Returns a list of all registered users, or an empty list if none exists.
+     *
+     * @return a list of all registered users, or an empty list if none exists.
+     */
     public List<User> getAll() {
-        return userRepository.findAll();
+        List<User> users = userRepository.findAll();
+        users.forEach(user -> {
+            user.setPassword("");
+        });
+        return users;
     }
 
-    public User authenticate(User candidate) {
-        List<User> users = userRepository.findAll(probe(candidate));
+    /**
+     * Returns the {@link User} corresponding to the supplied username/password pair
+     * from the datastore, or {@code null} if the {@link User} corresponding to
+     * the supplied username does not exist and/or if the supplied password is invalid.
+     *
+     * @param username The username of the requested {@link User}.
+     * @param password The password of the requested {@link User}.
+     *
+     * @return The requested {@link User}, or {@code null} if the supplied
+     * credentials are invalid.
+     */
+    public User get(String username, String password) {
+        List<User> users = userRepository.findAll(probe(username));
         if (users.size() == 1) {
             User user = users.get(0);
-            if (getEncoder().matches(candidate.getPassword(), user.getPassword())) {
+            if (getEncoder().matches(password, user.getPassword())) {
                 return user;
             }
         }
         return null;
     }
 
+    /**
+     * Adds the supplied {@link User} if it does not already exist in the
+     * datastore. Existence is defined as a user whose username matches that
+     * of the supplied {@link User}.
+     *
+     * @param user the {@link User} to add to the datastore.
+     */
     public void add(User user) {
-        if (!exists(user)) {
+        if (!exists(user.getUsername())) {
             String encoded = getEncoder().encode(user.getPassword());
             user.setPassword(encoded);
             userRepository.save(user);
         }
     }
 
-    public void delete(long id) {
-        User user = new User();
-        user.setId(id);
-        userRepository.delete(user);
+    /**
+     * Removes the {@link User} corresponding to the supplied username from the
+     * datastore.
+     *
+     * @param username The username of the {@link User} to delete.
+     */
+    public void delete(String username) {
+        List<User> users = userRepository.findAll(probe(username));
+        if (users.size() == 1) {
+            userRepository.delete(users.get(0));
+        }
     }
 
-    public boolean exists(User user) {
-        return userRepository.exists(probe(user));
+    /**
+     * Returns {@code true} if the supplied username matches a {@link User} containing
+     * the same username in the datastore; otherwise returns {@code false}.
+     *
+     * @param username the {@link User} to test for existence in the datastore.
+     *
+     * @return {@code true} if the user exists; {@code false} otherwise.
+     */
+    public boolean exists(String username) {
+        return userRepository.exists(probe(username));
     }
 
-    private Example<User> probe(User user) {
+    private Example<User> probe(String username) {
         User probe = new User();
-        probe.setUsername(user.getUsername());
+        probe.setUsername(username);
         return Example.of(probe);
     }
 
-    public boolean isBreached(User user) {
+    /**
+     * Returns {@code true} if the supplied password has been previously leaked in a
+     * known data breach; otherwise returns {@code false}.
+     *
+     * @param password The password to test for a breach.
+     *
+     * @return {@code true} if the password has been leaked; {@code false} otherwise.
+     */
+    public boolean isBreached(String password) {
         boolean isBreached = false;
         try {
             MessageDigest md = MessageDigest.getInstance(props.getBreachApiHashAlgo());
-            char[] chars = Hex.encode(md.digest(user.getPassword().getBytes()));
+            char[] chars = Hex.encode(md.digest(password.getBytes()));
 
             String prefix = new String(chars, 0, 5).toUpperCase();
             String url = props.getBreachApiURIRoot() + prefix;
