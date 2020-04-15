@@ -13,15 +13,12 @@ export class UserService {
     return this.http.get<User[]>('/users');
   }
 
-  register(user: User, passwordLeakChecked: boolean) {
-    return this.http.post('users/register', user,
-      { responseType: 'text',
-        headers: {'Password-Leak-Checked': `${passwordLeakChecked}`
-      }});
+  register(user: User) {
+    return this.http.post('users/register', user, {responseType: 'text'});
   }
 
-  isPasswordLeaked(password: string): Observable<boolean> {
-    return this.http.post<boolean>('/users/is-pw-leaked', password);
+  isPasswordLeaked(password: string) {
+    return this.http.post('/users/is-pw-leaked', password, {responseType: 'text'});
   }
 
   delete(user: User) {

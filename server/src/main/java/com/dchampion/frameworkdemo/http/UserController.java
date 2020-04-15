@@ -39,7 +39,9 @@ public class UserController {
         "User not found";
 
     private static final String passwordLeaked =
-        "The password you typed has been leaked in a data breach and should not be used";
+        "The password you typed has previously appeared in a data breach " +
+        "and should not be used. If you use this password to secure another " +
+        "online account(s), you should consider changing it immediately";
 
     private static final String invalidPassword =
         "The password you typed is incorrect";
@@ -74,15 +76,14 @@ public class UserController {
      * any other reason.
      */
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User user,
-        @RequestHeader("Password-Leak-Checked") boolean passwordLeakChecked) {
+    public ResponseEntity<String> register(@RequestBody User user) {
         if (userService.exists(user.getUsername())) {
             return ResponseEntity
                 .badRequest()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
                 .body(userExists);
         }
-        if (!passwordLeakChecked && userService.passwordLeaked(user.getPassword())) {
+        if (userService.passwordLeaked(user.getPassword())) {
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
@@ -138,8 +139,15 @@ public class UserController {
      * @return {@code true} if the password has been leaked; {@code false} otherwise.
      */
     @PostMapping("/is-pw-leaked")
-    public ResponseEntity<Boolean> isPasswordLeaked(@RequestBody String password) {
-        return ResponseEntity.ok().body(userService.passwordLeaked(password));
+    public ResponseEntity<String> isPasswordLeaked(@RequestBody String password) {
+        if (userService.passwordLeaked(password)) {
+            return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+                .body(passwordLeaked);
+        }
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+            .body("");
     }
 
     /**

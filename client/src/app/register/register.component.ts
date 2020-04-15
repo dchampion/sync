@@ -14,8 +14,7 @@ export class RegisterComponent implements OnInit {
   loading = false;
   submitted = false;
 
-  private passwordLeaked = false;
-  private passwordLeakChecked = false;
+  private passwordLeaked = '';
 
   constructor(private formBuilder: FormBuilder,
               private router: Router,
@@ -50,9 +49,8 @@ export class RegisterComponent implements OnInit {
   onPasswordLostFocus() {
     if (this.f.password.value) {
       this.userService.isPasswordLeaked(this.f.password.value).subscribe(
-        (response: boolean) => {
+        (response: string) => {
           this.passwordLeaked = response;
-          this.passwordLeakChecked = true;
         });
     }
   }
@@ -65,30 +63,25 @@ export class RegisterComponent implements OnInit {
 
     // stop here if form is invalid
     if (this.registerForm.invalid) {
-      this.passwordLeakChecked = false;
       return;
     }
 
-    if (this.passwordLeaked) {
-      this.alertService.error('The password you typed has ' +
-        'been leaked in a data breach and should not be used');
-      this.passwordLeaked = false;
+    if (this.passwordLeaked.length) {
+      this.alertService.error(this.passwordLeaked);
+      this.passwordLeaked = '';
       return;
     }
 
     this.loading = true;
-    this.userService.register(this.registerForm.value,
-      this.passwordLeakChecked).subscribe(
-        (response: string) => {
-          this.alertService.success(response, true);
-          this.router.navigate(['/login']);
-        },
-        (err: HttpErrorResponse) => {
-          this.alertService.error(err.error);
-          this.loading = false;
-        }
+    this.userService.register(this.registerForm.value).subscribe(
+      (response: string) => {
+        this.alertService.success(response, true);
+        this.router.navigate(['/login']);
+      },
+      (err: HttpErrorResponse) => {
+        this.alertService.error(err.error);
+        this.loading = false;
+      }
     );
-
-    this.passwordLeakChecked = false;
   }
 }
