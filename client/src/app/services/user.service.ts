@@ -2,6 +2,7 @@
 import { HttpClient } from '@angular/common/http';
 
 import { User } from '../models';
+import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class UserService {
@@ -12,8 +13,13 @@ export class UserService {
     return this.http.get<User[]>('/users');
   }
 
-  register(user: User) {
-    return this.http.post('users/register', user, {responseType: 'text'});
+  register(user: User, passwordLeakChecked: boolean) {
+    return this.http.post('users/register', user,
+      {responseType: 'text', headers: {'Password-Leak-Checked': `${passwordLeakChecked}`}});
+  }
+
+  isPasswordLeaked(password: string): Observable<boolean> {
+    return this.http.post<boolean>('/users/is-pw-leaked', password);
   }
 
   delete(user: User) {

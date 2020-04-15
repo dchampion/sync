@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -37,11 +38,14 @@ public class UserController {
     private static final String userDoesNotExist =
         "User not found";
 
-    private static final String passwordBreached =
+    private static final String passwordLeaked =
         "The password you typed has been leaked in a data breach and should not be used";
 
     private static final String invalidPassword =
         "The password you typed is incorrect";
+
+    private static final String registrationFailed =
+        "Registration failed; contact site administrator";
 
     /**
      * Returns a list of all registered {@link User}s, or an empty list if none exists.
@@ -64,29 +68,36 @@ public class UserController {
      * @param user the {@link User} to register.
      *
      * @return {@link HttpStatus#OK} if the registration is successful;
-     * otherwise {@link HttpStatus#BAD_REQUEST} if the user already exists
-     * or {@link HttpStatus#FORBIDDEN} if the supplied password has been
-     * breached.
+     * otherwise {@link HttpStatus#BAD_REQUEST} if the user already exists,
+     * {@link HttpStatus#FORBIDDEN} if the supplied password has been breached,
+     * or {@link HttpStatus#INTERNAL_SERVER_ERROR} if registration fails for
+     * any other reason.
      */
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody User user) {
+    public ResponseEntity<String> register(@RequestBody User user,
+        @RequestHeader("Password-Leak-Checked") boolean passwordLeakChecked) {
         if (userService.exists(user.getUsername())) {
             return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .badRequest()
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
                 .body(userExists);
         }
-        if (userService.isBreached(user.getPassword())) {
+        if (!passwordLeakChecked && userService.passwordLeaked(user.getPassword())) {
             return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
-                .body(passwordBreached);
+                .body(passwordLeaked);
         }
-        userService.add(user);
+        if (userService.add(user)) {
+            return ResponseEntity
+                .ok()
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+                .body(registrationSuccessful);
+        }
         return ResponseEntity
-            .ok()
+            .status(HttpStatus.INTERNAL_SERVER_ERROR)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
-            .body(registrationSuccessful);
+            .body(registrationFailed);
     }
 
     /**
@@ -116,6 +127,19 @@ public class UserController {
             .status(HttpStatus.UNAUTHORIZED)
             .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
             .body(invalidPassword);
+    }
+
+    /**
+     * Tells the caller if the supplied password has been previously leaked in a
+     * known data breach.
+     *
+     * @param password The password to test for a leak.
+     *
+     * @return {@code true} if the password has been leaked; {@code false} otherwise.
+     */
+    @PostMapping("/is-pw-leaked")
+    public ResponseEntity<Boolean> isPasswordLeaked(@RequestBody String password) {
+        return ResponseEntity.ok().body(userService.passwordLeaked(password));
     }
 
     /**

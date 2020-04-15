@@ -87,13 +87,19 @@ public class UserService {
      * of the supplied {@link User}.
      *
      * @param user the {@link User} to add to the datastore.
+     *
+     * @return the added {@link User}, or {@code null} if the user already exists
+     * or could not otherwise be saved to the datastore.
      */
-    public void add(User user) {
+    public boolean add(User user) {
+        boolean added = false;
         if (!exists(user.getUsername())) {
             String encoded = getEncoder().encode(user.getPassword());
             user.setPassword(encoded);
             userRepository.save(user);
+            added = true;
         }
+        return added;
     }
 
     /**
@@ -135,7 +141,7 @@ public class UserService {
      *
      * @return {@code true} if the password has been leaked; {@code false} otherwise.
      */
-    public boolean isBreached(String password) {
+    public boolean passwordLeaked(String password) {
         boolean isBreached = false;
         try {
             MessageDigest md = MessageDigest.getInstance(props.getBreachApiHashAlgo());

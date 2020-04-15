@@ -1,9 +1,10 @@
 ﻿import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { HttpClient, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import { AlertService, UserService, AuthenticationService } from '../services';
+import { match } from '../helpers/match.validator';
 
 @Component({ templateUrl: 'register.component.html' })
 export class RegisterComponent implements OnInit {
@@ -11,13 +12,16 @@ export class RegisterComponent implements OnInit {
   loading = false;
   submitted = false;
 
+  private passwordLeaked = false;
+  private passwordLeakChecked = false;
+
   constructor(
     private formBuilder: FormBuilder,
     private router: Router,
     private authenticationService: AuthenticationService,
     private userService: UserService,
-    private alertService: AlertService
-  ) {
+    private alertService: AlertService) {
+
     // redirect to home if already logged in
     if (this.authenticationService.currentUserValue) {
       this.router.navigate(['/']);
@@ -26,16 +30,30 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit() {
     this.registerForm = this.formBuilder.group({
-      firstName: ['', Validators.required],
-      lastName: ['', Validators.required],
-      username: ['', Validators.required],
-      password: ['', [Validators.required, Validators.minLength(6)]]
+      firstName:       ['',  Validators.required],
+      lastName:        ['',  Validators.required],
+      username:        ['',  Validators.required],
+      password:        ['', [Validators.required, Validators.minLength(6)]],
+      confirmPassword: ['',  Validators.required]
+    },
+    {
+      validator: match('password', 'confirmPassword')
     });
   }
 
   // convenience getter for easy access to form fields
   get f() {
     return this.registerForm.controls;
+  }
+
+  onPasswordLostFocus() {
+    if (this.f.password.value) {
+      this.userService.isPasswordLeaked(this.f.password.value).subscribe(
+        (response: boolean) => {
+          this.passwordLeaked = response;
+          this.passwordLeakChecked = true;
+        });
+    }
   }
 
   onSubmit() {
@@ -46,19 +64,30 @@ export class RegisterComponent implements OnInit {
 
     // stop here if form is invalid
     if (this.registerForm.invalid) {
+      this.passwordLeakChecked = false;
+      return;
+    }
+
+    if (this.passwordLeaked) {
+      this.alertService.error('The password you typed has ' +
+        'been leaked in a data breach and should not be used');
+      this.passwordLeaked = false;
       return;
     }
 
     this.loading = true;
-    this.userService.register(this.registerForm.value).subscribe(
-      (response: string) => {
-        this.alertService.success(response, true);
-        this.router.navigate(['/login']);
-      },
-      (err: HttpErrorResponse) => {
-        this.alertService.error(err.error);
-        this.loading = false;
-      }
+    this.userService.register(this.registerForm.value,
+      this.passwordLeakChecked).subscribe(
+        (response: string) => {
+          this.alertService.success(response, true);
+          this.router.navigate(['/login']);
+        },
+        (err: HttpErrorResponse) => {
+          this.alertService.error(err.error);
+          this.loading = false;
+        }
     );
+
+    this.passwordLeakChecked = false;
   }
 }
