@@ -15,7 +15,9 @@ export class UserService {
 
   register(user: User, passwordLeakChecked: boolean) {
     return this.http.post('users/register', user,
-      {responseType: 'text', headers: {'Password-Leak-Checked': `${passwordLeakChecked}`}});
+      { responseType: 'text',
+        headers: {'Password-Leak-Checked': `${passwordLeakChecked}`
+      }});
   }
 
   isPasswordLeaked(password: string): Observable<boolean> {

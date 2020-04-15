@@ -20,10 +20,12 @@ export class LongCallService {
   }
 
   submit(body: TimeoutParameter): Observable<HttpResponse<any>> {
-    return this.http.post<HttpResponse<any>>(this.getSubmitPath(), body, {observe: 'response'});
+    return this.http.post<HttpResponse<any>>(
+      this.getSubmitPath(), body, {observe: 'response'});
   }
 
   poll(taskId: string): Observable<HttpResponse<string[]>> {
-    return this.http.get<string[]>(this.getPollPath(taskId), {observe: 'response'});
+    return this.http.get<string[]>(
+      this.getPollPath(taskId), {observe: 'response'});
   }
 }

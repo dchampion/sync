@@ -6,7 +6,9 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { AlertService, UserService, AuthenticationService } from '../services';
 import { match } from '../helpers/match.validator';
 
-@Component({ templateUrl: 'register.component.html' })
+@Component({
+  templateUrl: 'register.component.html'
+})
 export class RegisterComponent implements OnInit {
   registerForm: FormGroup;
   loading = false;
@@ -15,12 +17,11 @@ export class RegisterComponent implements OnInit {
   private passwordLeaked = false;
   private passwordLeakChecked = false;
 
-  constructor(
-    private formBuilder: FormBuilder,
-    private router: Router,
-    private authenticationService: AuthenticationService,
-    private userService: UserService,
-    private alertService: AlertService) {
+  constructor(private formBuilder: FormBuilder,
+              private router: Router,
+              private authenticationService: AuthenticationService,
+              private userService: UserService,
+              private alertService: AlertService) {
 
     // redirect to home if already logged in
     if (this.authenticationService.currentUserValue) {
@@ -30,11 +31,11 @@ export class RegisterComponent implements OnInit {
 
   ngOnInit() {
     this.registerForm = this.formBuilder.group({
-      firstName:       ['',  Validators.required],
-      lastName:        ['',  Validators.required],
-      username:        ['',  Validators.required],
+      firstName:       ['', Validators.required],
+      lastName:        ['', Validators.required],
+      username:        ['', Validators.required],
       password:        ['', [Validators.required, Validators.minLength(6)]],
-      confirmPassword: ['',  Validators.required]
+      confirmPassword: ['', Validators.required]
     },
     {
       validator: match('password', 'confirmPassword')

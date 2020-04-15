@@ -5,7 +5,9 @@ import { Router } from '@angular/router';
 import { User } from '../models';
 import { AlertService, UserService, AuthenticationService } from '../services';
 
-@Component({ templateUrl: 'authenticated.component.html' })
+@Component({
+  templateUrl: 'authenticated.component.html'
+})
 export class AuthenticatedComponent implements OnInit {
   currentUser: User;
   users = [];
@@ -23,18 +25,16 @@ export class AuthenticatedComponent implements OnInit {
     this.loadAllUsers();
   }
 
-  delete(user) {
-    this.userService
-      .delete(user)
-      .pipe(first())
-      .subscribe(() => this.loadAllUsers());
-  }
-
   private loadAllUsers() {
     this.userService
       .getAll()
-      .pipe(first())
       .subscribe(users => (this.users = users));
+  }
+
+  delete(user: User) {
+    this.userService
+      .delete(user)
+      .subscribe(() => this.loadAllUsers());
   }
 
   logout() {
