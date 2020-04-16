@@ -39,9 +39,8 @@ public class UserController {
         "User not found";
 
     private static final String passwordLeaked =
-        "The password you typed has previously appeared in a data breach " +
-        "and should not be used. If you use this password to secure another " +
-        "online account(s), you should consider changing it immediately";
+        "This password has previously appeared in a data breach. " +
+        "Please choose a more secure alternative.";
 
     private static final String invalidPassword =
         "The password you typed is incorrect";
@@ -122,7 +121,11 @@ public class UserController {
         }
         User user = userService.get(candidate.getUsername(), candidate.getPassword());
         if (user != null) {
-            return ResponseEntity.ok().body(user);
+            user.setPassword("");
+            boolean leaked = userService.passwordLeaked(candidate.getPassword());
+            return ResponseEntity.ok()
+                .header("Password-Leaked", Boolean.toString(leaked))
+                .body(user);
         }
         return ResponseEntity
             .status(HttpStatus.UNAUTHORIZED)

@@ -26,12 +26,12 @@ export class AuthenticationService {
 
   login(username: string, password: string) {
     return this.http
-      .post<any>('/users/authenticate', { username, password })
+      .post<any>('/users/authenticate', { username, password }, {observe: 'response'})
       .pipe(
-        map(user => {
-          this.user = user;
-          this.currentUserSubject.next(user);
-          return user;
+        map(response => {
+          this.user = response.body;
+          this.currentUserSubject.next(response.body);
+          return response;
         })
       );
   }
