@@ -121,7 +121,6 @@ public class UserController {
         }
         User user = userService.get(candidate.getUsername(), candidate.getPassword());
         if (user != null) {
-            user.setPassword("");
             boolean leaked = userService.passwordLeaked(candidate.getPassword());
             return ResponseEntity.ok()
                 .header("Password-Leaked", Boolean.toString(leaked))

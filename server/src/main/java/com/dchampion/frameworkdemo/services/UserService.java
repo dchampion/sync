@@ -7,6 +7,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import javax.annotation.PostConstruct;
+
 import com.dchampion.frameworkdemo.ConfigProps;
 import com.dchampion.frameworkdemo.entities.User;
 import com.dchampion.frameworkdemo.repositories.UserRepository;
@@ -39,11 +41,9 @@ public class UserService {
 
     private PasswordEncoder encoder;
 
-    public PasswordEncoder getEncoder() {
-        if (encoder == null) {
-            encoder = new BCryptPasswordEncoder(props.getbCryptStrength());
-        }
-        return encoder;
+    @PostConstruct
+    private void init() {
+        encoder = new BCryptPasswordEncoder(props.getbCryptStrength());
     }
 
     /**
@@ -71,14 +71,13 @@ public class UserService {
      * credentials are invalid.
      */
     public User get(String username, String password) {
+        User user = null;
         List<User> users = userRepository.findAll(probe(username));
-        if (users.size() == 1) {
-            User user = users.get(0);
-            if (getEncoder().matches(password, user.getPassword())) {
-                return user;
-            }
+        if (users.size() == 1 && encoder.matches(password, users.get(0).getPassword())) {
+            user = users.get(0);
+            user.setPassword("");
         }
-        return null;
+        return user;
     }
 
     /**
@@ -94,7 +93,7 @@ public class UserService {
     public boolean add(User user) {
         boolean added = false;
         if (!exists(user.getUsername())) {
-            String encoded = getEncoder().encode(user.getPassword());
+            String encoded = encoder.encode(user.getPassword());
             user.setPassword(encoded);
             userRepository.save(user);
             added = true;
