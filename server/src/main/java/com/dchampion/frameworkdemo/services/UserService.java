@@ -7,20 +7,17 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.logging.Logger;
 
-import javax.annotation.PostConstruct;
-
-import com.dchampion.frameworkdemo.ConfigProps;
 import com.dchampion.frameworkdemo.entities.User;
 import com.dchampion.frameworkdemo.repositories.UserRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -32,19 +29,18 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class UserService {
 
     @Autowired
-    private ConfigProps props;
-
-    @Autowired
     private UserRepository userRepository;
 
-    private static final Logger log = Logger.getLogger(UserService.class.getName());
-
+    @Autowired
     private PasswordEncoder encoder;
 
-    @PostConstruct
-    private void init() {
-        encoder = new BCryptPasswordEncoder(props.getbCryptStrength());
-    }
+    @Value("${framework-demo.breach-api-uri-root}")
+    private String breachApiUriRoot;
+
+    @Value("${framework-demo.breach-api-hash-algo}")
+    private String breachApiHashAlgo;
+
+    private static final Logger log = Logger.getLogger(UserService.class.getName());
 
     /**
      * Returns a list of all registered users, or an empty list if none exists.
@@ -53,9 +49,7 @@ public class UserService {
      */
     public List<User> getAll() {
         List<User> users = userRepository.findAll();
-        users.forEach(user -> {
-            user.setPassword("");
-        });
+        users.forEach(user -> user.setPassword(""));
         return users;
     }
 
@@ -143,11 +137,11 @@ public class UserService {
     public boolean passwordLeaked(String password) {
         boolean isBreached = false;
         try {
-            MessageDigest md = MessageDigest.getInstance(props.getBreachApiHashAlgo());
+            MessageDigest md = MessageDigest.getInstance(breachApiHashAlgo);
             char[] chars = Hex.encode(md.digest(password.getBytes()));
 
             String prefix = new String(chars, 0, 5).toUpperCase();
-            String url = props.getBreachApiURIRoot() + prefix;
+            String url = breachApiUriRoot + prefix;
 
             RestTemplate client = new RestTemplate();
             RequestEntity<Void> request =
@@ -164,7 +158,7 @@ public class UserService {
                 }
             }
         } catch (NoSuchAlgorithmException e) {
-            log.warning("Unsupported hash algorigthm: " + props.getBreachApiHashAlgo());
+            log.warning("Unsupported hash algorigthm: " + breachApiHashAlgo);
         } catch (URISyntaxException e) {
             log.warning(e.getMessage());
         }

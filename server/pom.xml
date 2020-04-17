@@ -77,6 +77,11 @@
       <!--version>5.3.1.RELEASE</version-->
     </dependency>
 
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-beans</artifactId>
+      <!--version>5.1.9.RELEASE</version-->
+    </dependency>
 
     <!-- BEGIN: Manual dependency upgrades to address security vulnerabilities -->
     <dependency>
