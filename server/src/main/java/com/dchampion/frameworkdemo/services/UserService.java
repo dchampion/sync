@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.logging.Logger;
 
+import com.dchampion.framework.security.PasswordUtils;
 import com.dchampion.frameworkdemo.entities.User;
 import com.dchampion.frameworkdemo.repositories.UserRepository;
 
@@ -32,15 +33,10 @@ public class UserService {
     private UserRepository userRepository;
 
     @Autowired
+    private PasswordUtils passwordUtils;
+
+    @Autowired
     private PasswordEncoder encoder;
-
-    @Value("${framework-demo.breach-api-uri-root}")
-    private String breachApiUriRoot;
-
-    @Value("${framework-demo.breach-api-hash-algo}")
-    private String breachApiHashAlgo;
-
-    private static final Logger log = Logger.getLogger(UserService.class.getName());
 
     /**
      * Returns a list of all registered users, or an empty list if none exists.
@@ -135,33 +131,6 @@ public class UserService {
      * @return {@code true} if the password has been leaked; {@code false} otherwise.
      */
     public boolean passwordLeaked(String password) {
-        boolean isBreached = false;
-        try {
-            MessageDigest md = MessageDigest.getInstance(breachApiHashAlgo);
-            char[] chars = Hex.encode(md.digest(password.getBytes()));
-
-            String prefix = new String(chars, 0, 5).toUpperCase();
-            String url = breachApiUriRoot + prefix;
-
-            RestTemplate client = new RestTemplate();
-            RequestEntity<Void> request =
-                RequestEntity.get(new URI(url)).accept(
-                    MediaType.TEXT_HTML).header("Add-Padding", "true").build();
-
-            ResponseEntity<String> response = client.exchange(request, String.class);
-            String[] body = response.getBody().split("\n");
-
-            String suffix = new String(chars, 5, chars.length-5).toUpperCase();
-            for (int i=0; i<body.length && !isBreached; i++) {
-                if (body[i].startsWith(suffix) && !body[i].endsWith(":0")) {
-                    isBreached = true;
-                }
-            }
-        } catch (NoSuchAlgorithmException e) {
-            log.warning("Unsupported hash algorigthm: " + breachApiHashAlgo);
-        } catch (URISyntaxException e) {
-            log.warning(e.getMessage());
-        }
-        return isBreached;
+        return passwordUtils.isLeaked(password);
     }
 }
