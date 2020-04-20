@@ -1,25 +1,14 @@
 package com.dchampion.frameworkdemo.services;
 
-import java.net.URI;
-import java.net.URISyntaxException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.List;
-import java.util.logging.Logger;
 
 import com.dchampion.framework.security.PasswordUtils;
 import com.dchampion.frameworkdemo.entities.User;
 import com.dchampion.frameworkdemo.repositories.UserRepository;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Example;
-import org.springframework.http.MediaType;
-import org.springframework.http.RequestEntity;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.codec.Hex;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**

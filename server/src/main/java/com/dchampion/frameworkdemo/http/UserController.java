@@ -4,9 +4,9 @@ import java.util.List;
 
 import com.dchampion.frameworkdemo.entities.User;
 import com.dchampion.frameworkdemo.services.UserService;
-import com.google.common.net.HttpHeaders;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -47,6 +47,12 @@ public class UserController {
     private static final String registrationFailed =
         "Registration failed; contact site administrator";
 
+    private static final HttpHeaders contentTypeTextHeader;
+    static {
+        contentTypeTextHeader = new HttpHeaders();
+        contentTypeTextHeader.setContentType(MediaType.TEXT_HTML);
+    }
+
     /**
      * Returns a list of all registered {@link User}s, or an empty list if none exists.
      *
@@ -76,26 +82,22 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<String> register(@RequestBody User user) {
         if (userService.exists(user.getUsername())) {
-            return ResponseEntity
-                .badRequest()
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+            return ResponseEntity.badRequest()
+                .headers(contentTypeTextHeader)
                 .body(userExists);
         }
         if (userService.passwordLeaked(user.getPassword())) {
-            return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .headers(contentTypeTextHeader)
                 .body(passwordLeaked);
         }
         if (userService.add(user)) {
-            return ResponseEntity
-                .ok()
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+            return ResponseEntity.ok()
+                .headers(contentTypeTextHeader)
                 .body(registrationSuccessful);
         }
-        return ResponseEntity
-            .status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .headers(contentTypeTextHeader)
             .body(registrationFailed);
     }
 
@@ -113,9 +115,8 @@ public class UserController {
     @PostMapping("/authenticate")
     public ResponseEntity<Object> authenticate(@RequestBody User candidate) {
         if (!userService.exists(candidate.getUsername())) {
-            return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .headers(contentTypeTextHeader)
                 .body(userDoesNotExist);
         }
         User user = userService.get(candidate.getUsername(), candidate.getPassword());
@@ -125,9 +126,8 @@ public class UserController {
                 .header("Password-Leaked", Boolean.toString(leaked))
                 .body(user);
         }
-        return ResponseEntity
-            .status(HttpStatus.UNAUTHORIZED)
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .headers(contentTypeTextHeader)
             .body(invalidPassword);
     }
 
@@ -143,11 +143,11 @@ public class UserController {
     public ResponseEntity<String> isPasswordLeaked(@RequestBody String password) {
         if (userService.passwordLeaked(password)) {
             return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+                .headers(contentTypeTextHeader)
                 .body(passwordLeaked);
         }
         return ResponseEntity.ok()
-            .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_HTML_VALUE)
+            .headers(contentTypeTextHeader)
             .body("");
     }
 
