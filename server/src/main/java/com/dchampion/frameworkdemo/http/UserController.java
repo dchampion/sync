@@ -10,18 +10,18 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
 
 /**
- * A {@link RestController} that manages user registration and authentication.
+ * A REST {@link Controller} that manages user registration and authentication.
  */
-@RestController
+@Controller
 @RequestMapping("/users")
 public class UserController {
 
@@ -46,12 +46,6 @@ public class UserController {
 
     private static final String registrationFailed =
         "Registration failed; contact site administrator";
-
-    private static final HttpHeaders contentTypeTextHeader;
-    static {
-        contentTypeTextHeader = new HttpHeaders();
-        contentTypeTextHeader.setContentType(MediaType.TEXT_HTML);
-    }
 
     /**
      * Returns a list of all registered {@link User}s, or an empty list if none exists.
@@ -79,26 +73,18 @@ public class UserController {
      * or {@link HttpStatus#INTERNAL_SERVER_ERROR} if registration fails for
      * any other reason.
      */
-    @PostMapping("/register")
+    @PostMapping(value="/register", produces="text/plain")
     public ResponseEntity<String> register(@RequestBody User user) {
         if (userService.exists(user.getUsername())) {
-            return ResponseEntity.badRequest()
-                .headers(contentTypeTextHeader)
-                .body(userExists);
+            return ResponseEntity.badRequest().body(userExists);
         }
         if (userService.passwordLeaked(user.getPassword())) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .headers(contentTypeTextHeader)
-                .body(passwordLeaked);
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(passwordLeaked);
         }
         if (userService.add(user)) {
-            return ResponseEntity.ok()
-                .headers(contentTypeTextHeader)
-                .body(registrationSuccessful);
+            return ResponseEntity.ok().body(registrationSuccessful);
         }
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .headers(contentTypeTextHeader)
-            .body(registrationFailed);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(registrationFailed);
     }
 
     /**
@@ -112,23 +98,19 @@ public class UserController {
      * {@link HttpStatus#BAD_REQUEST} if the user does not exist, or
      * {@link HttpStatus#UNAUTHORIZED} if the password is invalid.
      */
-    @PostMapping("/authenticate")
+    @PostMapping(value="/authenticate", produces="text/plain")
     public ResponseEntity<Object> authenticate(@RequestBody User candidate) {
         if (!userService.exists(candidate.getUsername())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                .headers(contentTypeTextHeader)
-                .body(userDoesNotExist);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(userDoesNotExist);
         }
         User user = userService.get(candidate.getUsername(), candidate.getPassword());
         if (user != null) {
             boolean leaked = userService.passwordLeaked(candidate.getPassword());
             return ResponseEntity.ok()
-                .header("Password-Leaked", Boolean.toString(leaked))
-                .body(user);
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .header("Password-Leaked", Boolean.toString(leaked)).body(user);
         }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .headers(contentTypeTextHeader)
-            .body(invalidPassword);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(invalidPassword);
     }
 
     /**
@@ -139,16 +121,12 @@ public class UserController {
      *
      * @return {@code true} if the password has been leaked; {@code false} otherwise.
      */
-    @PostMapping("/is-pw-leaked")
+    @PostMapping(value="/is-pw-leaked", produces="text/plain")
     public ResponseEntity<String> isPasswordLeaked(@RequestBody String password) {
         if (userService.passwordLeaked(password)) {
-            return ResponseEntity.ok()
-                .headers(contentTypeTextHeader)
-                .body(passwordLeaked);
+            return ResponseEntity.ok().body(passwordLeaked);
         }
-        return ResponseEntity.ok()
-            .headers(contentTypeTextHeader)
-            .body("");
+        return ResponseEntity.ok().body("");
     }
 
     /**
@@ -158,7 +136,10 @@ public class UserController {
      * @param username The username of the {@link User} to remove from the datastore.
      */
     @DeleteMapping("/{username}")
-    public void delete(@PathVariable String username) {
-        userService.delete(username);
+    public ResponseEntity<Void> delete(@PathVariable String username) {
+        if (userService.delete(username)) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.badRequest().build();
     }
 }

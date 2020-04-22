@@ -85,12 +85,18 @@ public class UserService {
      * datastore.
      *
      * @param username The username of the {@link User} to delete.
+     *
+     * @return {@code true} if the user was successfully deleted; otherwise
+     * {@code false}.
      */
-    public void delete(String username) {
+    public boolean delete(String username) {
+        boolean deleted = false;
         List<User> users = userRepository.findAll(probe(username));
         if (users.size() == 1) {
             userRepository.delete(users.get(0));
+            deleted = true;
         }
+        return deleted;
     }
 
     /**
