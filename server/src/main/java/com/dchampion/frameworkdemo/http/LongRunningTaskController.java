@@ -7,18 +7,18 @@ import com.dchampion.framework.http.AsyncRequestHandler;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
- * A contrived REST {@link Controller} class that demonstrates the usage of an {@link AsyncRequestHandler}
+ * A contrived {@link RestController} class that demonstrates the usage of an {@link AsyncRequestHandler}
  * to manage the lifecycle of a long-running HTTP request from a client.
  */
-@Controller
+@RestController
 @RequestMapping("/long-call")
 public class LongRunningTaskController {
 
