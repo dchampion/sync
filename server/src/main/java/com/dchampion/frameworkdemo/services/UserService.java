@@ -9,7 +9,6 @@ import com.dchampion.frameworkdemo.repositories.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 /**
  * A {@link Service} to manage the registration, authentication and retrieval
@@ -23,9 +22,6 @@ public class UserService {
 
     @Autowired
     private PasswordUtils passwordUtils;
-
-    @Autowired
-    private PasswordEncoder encoder;
 
     /**
      * Returns a list of all registered users, or an empty list if none exists.
@@ -52,7 +48,7 @@ public class UserService {
     public User get(String username, String password) {
         User user = null;
         List<User> users = userRepository.findAll(probe(username));
-        if (users.size() == 1 && encoder.matches(password, users.get(0).getPassword())) {
+        if (users.size() == 1 && passwordUtils.getEncoder().matches(password, users.get(0).getPassword())) {
             user = users.get(0);
             user.setPassword("");
         }
@@ -72,7 +68,7 @@ public class UserService {
     public boolean add(User user) {
         boolean added = false;
         if (!exists(user.getUsername())) {
-            String encoded = encoder.encode(user.getPassword());
+            String encoded = passwordUtils.getEncoder().encode(user.getPassword());
             user.setPassword(encoded);
             userRepository.save(user);
             added = true;
