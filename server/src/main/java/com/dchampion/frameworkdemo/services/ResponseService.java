@@ -6,7 +6,10 @@ import java.util.UUID;
 
 import com.dchampion.frameworkdemo.entities.Response;
 import com.dchampion.frameworkdemo.repositories.ResponseRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.http.HttpHeaders;
@@ -23,12 +26,14 @@ public class ResponseService {
     @Autowired
     private ResponseRepository responseRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(ResponseService.class);
+
     /**
-     * Either saves a new {@link ResponseEntity} in the data store, or updates
-     * an existing one if it is aready present in the data store.
+     * Either saves a new {@link ResponseEntity} in the data store, or updates an
+     * existing one if it is aready present in the data store.
      *
-     * @param <T> The type of the {@link ResponseEntity}'s body.
-     * @param key The key by which to store a {@link ResponseEntity}.
+     * @param <T>            The type of the {@link ResponseEntity}'s body.
+     * @param key            The key by which to store a {@link ResponseEntity}.
      * @param responseEntity The {@link ResponseEntity} to store.
      */
     public <T> void saveOrUpdate(UUID key, ResponseEntity<T> responseEntity) {
@@ -44,7 +49,11 @@ public class ResponseService {
         headerBuilder.deleteCharAt(headerBuilder.length() - 1);
         response.setHeaders(headerBuilder.toString());
 
-        response.setBody(responseEntity.getBody());
+        try {
+            response.setBody(responseEntity.getBody());
+        } catch (JsonProcessingException e) {
+            logger.warn(e.getMessage(), e);
+        }
 
         responseRepository.save(response);
     }
@@ -75,9 +84,15 @@ public class ResponseService {
             headers.set(header.split("=")[0], header.split("=")[1]);
         });
 
+        Object body = null;
+        try {
+            body = response.getBody();
+        } catch (JsonProcessingException e) {
+            logger.warn(e.getMessage(), e);
+        }
+
         @SuppressWarnings("unchecked")
-        ResponseEntity<T> responseEntity =
-            new ResponseEntity<T>((T)response.getBody(), headers, HttpStatus.OK);
+        ResponseEntity<T> responseEntity = new ResponseEntity<T>((T)body, headers, HttpStatus.OK);
 
         return responseEntity;
     }
