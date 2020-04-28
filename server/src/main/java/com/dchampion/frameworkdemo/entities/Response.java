@@ -1,7 +1,5 @@
 package com.dchampion.frameworkdemo.entities;
 
-import java.util.logging.Logger;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -12,7 +10,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Entity
-@Table(schema="FRAMEWORK_DEMO", name="SHARED_RESPONSE_CACHE")
+@Table(schema = "FRAMEWORK_DEMO", name = "SHARED_RESPONSE_CACHE")
 public class Response {
 
     @Id
@@ -27,9 +25,6 @@ public class Response {
 
     @Transient
     private static final ObjectMapper mapper = new ObjectMapper();
-
-    @Transient
-    private static final Logger log = Logger.getLogger(Response.class.getName());
 
     public void setId(Long id) {
         this.id = id;
@@ -55,21 +50,13 @@ public class Response {
         return this.headers;
     }
 
-    public void setBody(Object body) {
-        try {
-            this.body = mapper.writeValueAsString(body);
-        } catch (JsonProcessingException e) {
-            log.warning(e.getMessage());
-        }
+    public void setBody(Object body) throws JsonProcessingException {
+        this.body = mapper.writeValueAsString(body);
     }
 
-    public Object getBody() {
+    public Object getBody() throws JsonProcessingException {
         if (body != null) {
-            try {
-                return mapper.readValue(body, Object.class);
-            } catch (JsonProcessingException e) {
-                log.warning(e.getMessage());
-            }
+            return mapper.readValue(body, Object.class);
         }
         return body;
     }
