@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
-
 /**
  * A global exception handler for all REST methods of {@code RestController}-annotated
  * classes in the application context.
@@ -21,6 +20,9 @@ public class HttpRuntimeExceptionHandler extends ResponseEntityExceptionHandler 
 
     private static final Logger logger =
         LoggerFactory.getLogger(HttpRuntimeExceptionHandler.class);
+
+    private static final String errMsg =
+        "Something went wrong; please contact site administrator";
 
     /**
      * Catches and handles any exception not explicitly caught/handled in the super
@@ -33,10 +35,11 @@ public class HttpRuntimeExceptionHandler extends ResponseEntityExceptionHandler 
      */
     @ExceptionHandler(Exception.class)
     protected ResponseEntity<Object> handle(Exception exception, WebRequest request) {
-        // Put something useful in the log.
+        // Put something useful in the log...
         logger.warn(exception.getMessage(), exception);
 
-        return handleExceptionInternal(exception, exception.getMessage(),
+        // but don't reveal too much to the client.
+        return handleExceptionInternal(exception, null,
             new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR, request);
     }
 
@@ -49,9 +52,13 @@ public class HttpRuntimeExceptionHandler extends ResponseEntityExceptionHandler 
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(Exception exception, Object body,
             HttpHeaders headers, HttpStatus status, WebRequest request) {
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR;
+        }
+        if (headers == null) {
+            headers = new HttpHeaders();
+        }
         headers.set(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE);
-        Object responseBody = body != null ? body : exception.getMessage();
-
-        return ResponseEntity.status(status).headers(headers).body(responseBody);
+        return ResponseEntity.status(status).headers(headers).body(errMsg);
     }
 }
