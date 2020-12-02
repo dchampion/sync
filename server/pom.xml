@@ -78,7 +78,7 @@
     </dependency>
 
     <!-- BEGIN: Manual dependency upgrades to address security vulnerabilities -->
-    <dependency>
+    <!--dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-web</artifactId>
       <version>5.2.8.RELEASE</version>
@@ -100,7 +100,7 @@
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
       <version>1.26</version>
-    </dependency>
+    </dependency-->
     <!-- END: Manual dependency upgrades to address security vulnerabilities -->
 
   </dependencies>
