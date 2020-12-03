@@ -74,33 +74,14 @@
     <dependency>
       <groupId>org.springframework</groupId>
       <artifactId>spring-beans</artifactId>
-      <!--version>5.1.9.RELEASE</version-->
     </dependency>
 
     <!-- BEGIN: Manual dependency upgrades to address security vulnerabilities -->
-    <!--dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-web</artifactId>
-      <version>5.2.8.RELEASE</version>
-    </dependency>
-
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-webmvc</artifactId>
-      <version>5.2.8.RELEASE</version>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <version>5.4.24.Final</version>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.tomcat.embed</groupId>
-      <artifactId>tomcat-embed-core</artifactId>
-      <version>9.0.38</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.yaml</groupId>
-      <artifactId>snakeyaml</artifactId>
-      <version>1.26</version>
-    </dependency-->
     <!-- END: Manual dependency upgrades to address security vulnerabilities -->
 
   </dependencies>
